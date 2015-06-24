@@ -207,6 +207,10 @@ void Renderer::NewAudioDevice()
 void Renderer::DrawGrid( FXMVECTOR xAxis, FXMVECTOR yAxis, FXMVECTOR origin, size_t xdivs, size_t ydivs, GXMVECTOR color )
 {
     auto context = m_d3dContext.Get();
+    context->OMSetBlendState( m_states->Opaque(), nullptr, 0xFFFFFFFF );
+    context->OMSetDepthStencilState( m_states->DepthNone(), 0 );
+    context->RSSetState( m_states->CullCounterClockwise() );
+
     m_batchEffect->Apply( context );
 
     context->IASetInputLayout( m_batchInputLayout.Get() );

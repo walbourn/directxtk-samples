@@ -14,6 +14,7 @@
 //--------------------------------------------------------------------------------------
 
 #include "pch.h"
+
 #include "DirectXTK3DSceneRenderer.h"
 
 #include "DDSTextureLoader.h"
@@ -28,7 +29,7 @@ using namespace Windows::Foundation;
 DirectXTK3DSceneRenderer::DirectXTK3DSceneRenderer(const std::shared_ptr<DX::DeviceResources>& deviceResources) :
     m_deviceResources(deviceResources)
 {
-	CreateDeviceDependentResources();
+    CreateDeviceDependentResources();
     CreateWindowSizeDependentResources();
     CreateAudioResources();
 }
@@ -40,30 +41,30 @@ void DirectXTK3DSceneRenderer::CreateWindowSizeDependentResources()
     float aspectRatio = outputSize.Width / outputSize.Height;
     float fovAngleY = 70.0f * XM_PI / 180.0f;
 
-	// This is a simple example of change that can be made when the app is in
-	// portrait or snapped view.
-	if (aspectRatio < 1.0f)
-	{
-		fovAngleY *= 2.0f;
-	}
+    // This is a simple example of change that can be made when the app is in
+    // portrait or snapped view.
+    if (aspectRatio < 1.0f)
+    {
+        fovAngleY *= 2.0f;
+    }
 
-	// Note that the OrientationTransform3D matrix is post-multiplied here
-	// in order to correctly orient the scene to match the display orientation.
-	// This post-multiplication step is required for any draw calls that are
-	// made to the swap chain render target. For draw calls to other targets,
-	// this transform should not be applied.
+    // Note that the OrientationTransform3D matrix is post-multiplied here
+    // in order to correctly orient the scene to match the display orientation.
+    // This post-multiplication step is required for any draw calls that are
+    // made to the swap chain render target. For draw calls to other targets,
+    // this transform should not be applied.
 
-	// This sample makes use of a right-handed coordinate system using row-major matrices.
-	XMMATRIX perspectiveMatrix = XMMatrixPerspectiveFovRH(
-		fovAngleY,
-		aspectRatio,
-		0.01f,
-		100.0f
-		);
+    // This sample makes use of a right-handed coordinate system using row-major matrices.
+    XMMATRIX perspectiveMatrix = XMMatrixPerspectiveFovRH(
+        fovAngleY,
+        aspectRatio,
+        0.01f,
+        100.0f
+        );
 
-	XMFLOAT4X4 orientation = m_deviceResources->GetOrientationTransform3D();
+    XMFLOAT4X4 orientation = m_deviceResources->GetOrientationTransform3D();
 
-	XMMATRIX orientationMatrix = XMLoadFloat4x4(&orientation);
+    XMMATRIX orientationMatrix = XMLoadFloat4x4(&orientation);
 
     XMMATRIX projection = XMMatrixMultiply(perspectiveMatrix, orientationMatrix);
 
@@ -71,10 +72,10 @@ void DirectXTK3DSceneRenderer::CreateWindowSizeDependentResources()
 
     m_sprites->SetRotation( m_deviceResources->ComputeDisplayRotation() );
 
-	XMStoreFloat4x4(
+    XMStoreFloat4x4(
         &m_projection,
-		projection
-		);
+        projection
+        );
 }
 
 void DirectXTK3DSceneRenderer::CreateAudioResources()
@@ -159,6 +160,10 @@ void DirectXTK3DSceneRenderer::NewAudioDevice()
 void XM_CALLCONV DirectXTK3DSceneRenderer::DrawGrid(FXMVECTOR xAxis, FXMVECTOR yAxis, FXMVECTOR origin, size_t xdivs, size_t ydivs, GXMVECTOR color)
 {
     auto context = m_deviceResources->GetD3DDeviceContext();
+    context->OMSetBlendState(m_states->Opaque(), nullptr, 0xFFFFFFFF);
+    context->OMSetDepthStencilState(m_states->DepthNone(), 0);
+    context->RSSetState(m_states->CullCounterClockwise());
+
     m_batchEffect->Apply(context);
 
     context->IASetInputLayout(m_batchInputLayout.Get());
@@ -197,11 +202,11 @@ void XM_CALLCONV DirectXTK3DSceneRenderer::DrawGrid(FXMVECTOR xAxis, FXMVECTOR y
 
 void DirectXTK3DSceneRenderer::Render()
 {
-	auto context = m_deviceResources->GetD3DDeviceContext();
+    auto context = m_deviceResources->GetD3DDeviceContext();
 
-	// Set render targets to the screen.
-	ID3D11RenderTargetView *const targets[1] = { m_deviceResources->GetBackBufferRenderTargetView() };
-	context->OMSetRenderTargets(1, targets, m_deviceResources->GetDepthStencilView());
+    // Set render targets to the screen.
+    ID3D11RenderTargetView *const targets[1] = { m_deviceResources->GetBackBufferRenderTargetView() };
+    context->OMSetRenderTargets(1, targets, m_deviceResources->GetDepthStencilView());
 
     // Draw procedurally generated dynamic grid
     const XMVECTORF32 xaxis = { 20.f, 0.f, 0.f };
