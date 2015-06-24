@@ -31,23 +31,23 @@
 namespace SimpleSample
 {
     // This class renders a scene using DirectXTK
-	class DirectXTK3DSceneRenderer
-	{
-	public:
-		DirectXTK3DSceneRenderer(const std::shared_ptr<DX::DeviceResources>& deviceResources);
-		void CreateDeviceDependentResources();
-		void CreateWindowSizeDependentResources();
+    class DirectXTK3DSceneRenderer
+    {
+    public:
+        DirectXTK3DSceneRenderer(const std::shared_ptr<DX::DeviceResources>& deviceResources);
+        void CreateDeviceDependentResources();
+        void CreateWindowSizeDependentResources();
         void CreateAudioResources();
-		void ReleaseDeviceDependentResources();
-		void Update(DX::StepTimer const& timer);
-		void Render();
+        void ReleaseDeviceDependentResources();
+        void Update(DX::StepTimer const& timer);
+        void Render();
 
         // Signals a new audio device is available
         void NewAudioDevice();
 
-	private:
-		// Cached pointer to device resources.
-		std::shared_ptr<DX::DeviceResources> m_deviceResources;
+    private:
+        // Cached pointer to device resources.
+        std::shared_ptr<DX::DeviceResources> m_deviceResources;
 
         void XM_CALLCONV DrawGrid(DirectX::FXMVECTOR xAxis, DirectX::FXMVECTOR yAxis, DirectX::FXMVECTOR origin, size_t xdivs, size_t ydivs, DirectX::GXMVECTOR color);
 
@@ -70,7 +70,7 @@ namespace SimpleSample
         Microsoft::WRL::ComPtr<ID3D11ShaderResourceView>                        m_texture2;
         Microsoft::WRL::ComPtr<ID3D11InputLayout>                               m_batchInputLayout;
 
-		// Variables used with the rendering loop.
+        // Variables used with the rendering loop.
         uint32_t                                                                m_audioEvent;
         float                                                                   m_audioTimerAcc;
 
@@ -79,6 +79,6 @@ namespace SimpleSample
         DirectX::XMFLOAT4X4 m_world;
         DirectX::XMFLOAT4X4 m_view;
         DirectX::XMFLOAT4X4 m_projection;
-	};
+    };
 }
 
