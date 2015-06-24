@@ -4,7 +4,7 @@ DirectXTK - the DirectX Tool Kit
 
 Copyright (c) Microsoft Corporation. All rights reserved.
 
-November 24, 2014
+March 27, 2015
 
 This package contains the "DirectX Tool Kit", a collection of helper classes for 
 writing Direct3D 11 C++ code for Windows Store apps, Windows phone 8.x applications,
@@ -54,8 +54,8 @@ MakeSpriteFont\
 XWBTool\
     Command line tool for building XACT-style wave banks for use with DirectXTK for Audio's WaveBank class
 
-All content and source code for this package are bound to the Microsoft Public License (Ms-PL)
-<http://www.microsoft.com/en-us/openness/licenses.aspx#MPL>.
+All content and source code for this package are subject to the terms of the MIT License.
+<http://opensource.org/licenses/MIT>.
 
 For the latest version of DirectXTK, more detailed documentation, discussion forums, bug
 reports and feature requests, please visit the Codeplex site.
@@ -127,7 +127,7 @@ Alpha blending:
     Alpha blending defaults to using premultiplied alpha. To make use of 'straight'
     alpha textures, override the blending mode via the optional callback:
 
-    CommonStates states(deviceContext);
+    CommonStates states(device);
 
     spriteBatch->Begin(SpriteSortMode_Deferred, nullptr, nullptr, nullptr, nullptr, [=]
     {
@@ -483,6 +483,11 @@ To set up a suitable BasicEffect and input layout:
 
 To draw a line:
 
+    CommonStates states(device);
+    deviceContext->OMSetBlendState( states.Opaque(), nullptr, 0xFFFFFFFF );
+    deviceContext->OMSetDepthStencilState( states.DepthNone(), 0 );
+    deviceContext->RSSetState( states.CullCounterClockwise() );
+
     basicEffect->Apply(deviceContext);
     deviceContext->IASetInputLayout(inputLayout.Get());
 
@@ -574,7 +579,7 @@ Alpha blending:
     Alpha blending defaults to using premultiplied alpha. To make use of 'straight' alpha
     textures, override the blending mode via the optional callback:
 
-    CommonStates states(deviceContext);
+    CommonStates states(device);
     
     shape->Draw(world, view, projection, Colors::White, catTexture, false, [=]
     {
@@ -1272,8 +1277,7 @@ Playing one-shots:
     A common way to play sounds is to trigger them in a 'fire-and-forget' mode. This is done by calling
     SoundEffect::Play() rather than creating a SoundEffectInstance. These use XAudio2 source voices
     managed by AudioEngine, are cleaned up automatically when they finish playing, and can overlap in time.
-    One-shot sounds cannot be looped, have 3D positional effects, or have individual volume, pan,
-    or pitch control.
+    One-shot sounds cannot be looped or have 3D positional effects.
 
     std::unique_ptr<SoundEffect> soundEffect( new SoundEffect( audEngine.get(), L"Explosion.wav" ) );
 
@@ -1445,6 +1449,26 @@ Further reading:
 ---------------
 RELEASE HISTORY
 ---------------
+
+March 27, 2015
+    Added projects for Windows apps Technical Preview
+    - GamePad temporarily uses 'null' device for universal Windows applicaton platform
+
+February 25, 2015
+    DirectXTK for Audio updates
+    - *breaking change* pitch now defined as -1 to 1 with 0 as the default
+    - One-shot Play method with volume, pitch, and pan
+    - GetMasterVolume/SetMasterVolume method for AudioEngine
+    - Fix for compact wavebank validation
+    - Improved voice cleanup and shutdown
+    Minor code cleanup and C++11 =default/=delete usage
+
+January 26, 2015
+    GamePad class: emulate XInputEnable behavior for XInput 9.1.0
+    DirectXTK for Audio fix for Stop followed by Play doing a proper restart
+    DirectXTK for Audio fix when using XAudio 2.7 on a system with no audio device
+    Updates for Xbox One platform support
+    Minor code cleanup and C99 printf string conformance
 
 November 24, 2014
     SimpleMath fix for Matrix operator !=

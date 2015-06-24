@@ -65,6 +65,9 @@ namespace DirectX
     void CreateXMA2( _Out_writes_bytes_(wfxSize) WAVEFORMATEX* wfx, size_t wfxSize, int sampleRate, int channels, int bytesPerBlock, int blockCount, int samplesEncoded );
 #endif
 
+    // Helper for computing pan volume matrix
+    bool ComputePan( float pan, int channels, _Out_writes_(16) float* matrix );
+
     // Helper class for implementing SoundEffectInstance
     class SoundEffectInstanceBase
     {
@@ -74,7 +77,8 @@ namespace DirectX
             state( STOPPED ),
             engine( nullptr ),
             mVolume( 1.f ),
-            mPitch( 1.f ),
+            mPitch( 0.f ),
+            mFreqRatio( 1.f ),
             mPan( 0.f ),
             mFlags( SoundEffectInstance_Default ),
             mDirectVoice( nullptr ),
@@ -142,9 +146,11 @@ namespace DirectX
                         ThrowIfFailed( hr );
                     }
 
-                    if ( mPitch != 1.f )
+                    if ( mPitch != 0.f )
                     {
-                        HRESULT hr = voice->SetFrequencyRatio( mPitch );
+                        mFreqRatio = XAudio2SemitonesToFrequencyRatio( mPitch * 12.f );
+
+                        HRESULT hr = voice->SetFrequencyRatio( mFreqRatio );
                         ThrowIfFailed( hr );
                     }
 
@@ -174,6 +180,7 @@ namespace DirectX
             {
                 state = STOPPED;
                 voice->Stop( 0 );
+                voice->FlushSourceBuffers();
             }
             else if ( looped )
             {
@@ -221,19 +228,21 @@ namespace DirectX
 
         void SetPitch( float pitch )
         {
-            if ( ( mFlags & SoundEffectInstance_NoSetPitch ) && pitch != 1.f )
+            assert( pitch >= -1.f && pitch <= 1.f );
+
+            if ( ( mFlags & SoundEffectInstance_NoSetPitch ) && pitch != 0.f )
             {
                 DebugTrace( "ERROR: Sound effect instance was created with the NoSetPitch flag\n" );
                 throw std::exception( "SetPitch" );
             }
 
-            assert( pitch >= XAUDIO2_MIN_FREQ_RATIO && pitch <= XAUDIO2_DEFAULT_FREQ_RATIO );
-
             mPitch = pitch;
 
             if ( voice )
             {
-                HRESULT hr = voice->SetFrequencyRatio( pitch );
+                mFreqRatio = XAudio2SemitonesToFrequencyRatio( mPitch * 12.f );
+
+                HRESULT hr = voice->SetFrequencyRatio( mFreqRatio );
                 ThrowIfFailed( hr );
             }
         }
@@ -280,7 +289,11 @@ namespace DirectX
 
         void OnCriticalError()
         {
-            voice = nullptr;
+            if ( voice )
+            {
+                voice->DestroyVoice();
+                voice = nullptr;
+            }
             state = STOPPED;
             mDirectVoice = nullptr;
             mReverbVoice = nullptr;
@@ -306,6 +319,7 @@ namespace DirectX
             {
                 voice->Stop( 0 );
                 voice->FlushSourceBuffers();
+                voice->DestroyVoice();
                 voice = nullptr;
             }
             state = STOPPED;
@@ -345,6 +359,7 @@ namespace DirectX
     private:
         float                       mVolume;
         float                       mPitch;
+        float                       mFreqRatio;
         float                       mPan;
         SOUND_EFFECT_INSTANCE_FLAGS mFlags;
         IXAudio2Voice*              mDirectVoice;

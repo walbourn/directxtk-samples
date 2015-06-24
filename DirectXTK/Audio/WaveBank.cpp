@@ -14,6 +14,7 @@
 #include "pch.h"
 #include "Audio.h"
 #include "WaveBankReader.h"
+#include "SoundCommon.h"
 #include "PlatformHelpers.h"
 
 #include <list>
@@ -39,11 +40,11 @@ public:
         mEngine->RegisterNotify( this, false );
     }
 
-    ~Impl()
+    virtual ~Impl()
     {
         if ( !mInstances.empty() )
         {
-            DebugTrace( "WARNING: Destroying WaveBank \"%s\" with %Iu outstanding SoundEffectInstances\n", mReader.BankName(), mInstances.size() );
+            DebugTrace( "WARNING: Destroying WaveBank \"%hs\" with %Iu outstanding SoundEffectInstances\n", mReader.BankName(), mInstances.size() );
 
             for( auto it = mInstances.begin(); it != mInstances.end(); ++it )
             {
@@ -56,7 +57,7 @@ public:
 
         if ( mOneShots > 0 )
         {
-            DebugTrace( "WARNING: Destroying WaveBank \"%s\" with %u outstanding one shot effects\n", mReader.BankName(), mOneShots );
+            DebugTrace( "WARNING: Destroying WaveBank \"%hs\" with %u outstanding one shot effects\n", mReader.BankName(), mOneShots );
         }
 
         if ( mEngine )
@@ -68,7 +69,7 @@ public:
 
     HRESULT Initialize( _In_ AudioEngine* engine, _In_z_ const wchar_t* wbFileName );
 
-    void Play( int index );
+    void Play( int index, float volume, float pitch, float pan );
 
     // IVoiceNotify
     virtual void __cdecl OnBufferEnd() override
@@ -143,8 +144,12 @@ HRESULT WaveBank::Impl::Initialize( AudioEngine* engine, const wchar_t* wbFileNa
 }
 
 
-void WaveBank::Impl::Play( int index )
+void WaveBank::Impl::Play( int index, float volume, float pitch, float pan )
 {
+    assert( volume >= -XAUDIO2_MAX_VOLUME_LEVEL && volume <= XAUDIO2_MAX_VOLUME_LEVEL );
+    assert( pitch >= -1.f && pitch <= 1.f );
+    assert( pan >= -1.f && pan <= 1.f );
+
     if ( mStreaming )
     {
         DebugTrace( "ERROR: One-shots can only be created from an in-memory wave bank\n");
@@ -173,6 +178,30 @@ void WaveBank::Impl::Play( int index )
 
     if ( !voice )
         return;
+
+    if ( volume != 1.f )
+    {
+        hr = voice->SetVolume( volume );
+        ThrowIfFailed( hr );
+    }
+
+    if ( pitch != 0.f )
+    {
+        float fr = XAudio2SemitonesToFrequencyRatio( pitch * 12.f );
+
+        hr = voice->SetFrequencyRatio( fr );
+        ThrowIfFailed( hr );
+    }
+
+    if ( pan != 0.f )
+    {
+        float matrix[16];
+        if ( ComputePan( pan, wfx->nChannels, matrix ) )
+        {
+            hr = voice->SetOutputMatrix( nullptr, wfx->nChannels, mEngine->GetOutputChannels(), matrix );
+            ThrowIfFailed( hr );
+        }
+    }
 
     hr = voice->Start( 0 );
     ThrowIfFailed( hr );
@@ -232,11 +261,11 @@ WaveBank::WaveBank( AudioEngine* engine, const wchar_t* wbFileName )
     HRESULT hr = pImpl->Initialize( engine, wbFileName );
     if ( FAILED(hr) )
     {
-        DebugTrace( "ERROR: WaveBank failed (%08X) to intialize from .xwb file \"%S\"\n", hr, wbFileName );
+        DebugTrace( "ERROR: WaveBank failed (%08X) to intialize from .xwb file \"%ls\"\n", hr, wbFileName );
         throw std::exception( "WaveBank" );
     }
 
-    DebugTrace( "INFO: WaveBank \"%s\" with %u entries loaded from .xwb file \"%S\"\n",
+    DebugTrace( "INFO: WaveBank \"%hs\" with %u entries loaded from .xwb file \"%ls\"\n",
                 pImpl->mReader.BankName(), pImpl->mReader.Count(), wbFileName );
 }
 
@@ -265,7 +294,13 @@ WaveBank::~WaveBank()
 // Public methods.
 void WaveBank::Play( int index )
 {
-    pImpl->Play( index );
+    pImpl->Play( index, 1.f, 0.f, 0.f );
+}
+
+
+void WaveBank::Play( int index, float volume, float pitch, float pan )
+{
+    pImpl->Play( index, volume, pitch, pan );
 }
 
 
@@ -274,11 +309,24 @@ void WaveBank::Play( _In_z_ const char* name )
     int index = static_cast<int>( pImpl->mReader.Find( name ) );
     if ( index == -1 )
     {
-        DebugTrace( "WARNING: Name '%s' not found in wave bank, one-shot not triggered\n", name );
+        DebugTrace( "WARNING: Name '%hs' not found in wave bank, one-shot not triggered\n", name );
         return;
     }
 
-    pImpl->Play( index );
+    pImpl->Play( index, 1.f, 0.f, 0.f );
+}
+
+
+void WaveBank::Play( _In_z_ const char* name, float volume, float pitch, float pan )
+{
+    int index = static_cast<int>( pImpl->mReader.Find( name ) );
+    if ( index == -1 )
+    {
+        DebugTrace( "WARNING: Name '%hs' not found in wave bank, one-shot not triggered\n", name );
+        return;
+    }
+
+    pImpl->Play( index, volume, pitch, pan );
 }
 
 

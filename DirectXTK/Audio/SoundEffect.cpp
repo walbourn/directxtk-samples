@@ -52,7 +52,7 @@ public:
         mEngine->RegisterNotify( this, false );
     }
 
-    ~Impl()
+    virtual ~Impl()
     {
         if ( !mInstances.empty() )
         {
@@ -94,7 +94,7 @@ public:
 #endif
                         uint32_t loopStart, uint32_t loopLength );
 
-    void Play();
+    void Play( float volume, float pitch, float pan );
 
     // IVoiceNotify
     virtual void __cdecl OnBufferEnd() override
@@ -283,13 +283,41 @@ HRESULT SoundEffect::Impl::Initialize( AudioEngine* engine, std::unique_ptr<uint
 }
 
 
-void SoundEffect::Impl::Play()
+void SoundEffect::Impl::Play( float volume, float pitch, float pan )
 {
+    assert( volume >= -XAUDIO2_MAX_VOLUME_LEVEL && volume <= XAUDIO2_MAX_VOLUME_LEVEL );
+    assert( pitch >= -1.f && pitch <= 1.f );
+    assert( pan >= -1.f && pan <= 1.f );
+
     IXAudio2SourceVoice* voice = nullptr;
     mEngine->AllocateVoice( mWaveFormat, SoundEffectInstance_Default, true, &voice );
     
     if ( !voice )
         return;
+
+    if ( volume != 1.f )
+    {
+        HRESULT hr = voice->SetVolume( volume );
+        ThrowIfFailed( hr );
+    }
+
+    if ( pitch != 0.f )
+    {
+        float fr = XAudio2SemitonesToFrequencyRatio( pitch * 12.f );
+
+        HRESULT hr = voice->SetFrequencyRatio( fr );
+        ThrowIfFailed( hr );
+    }
+
+    if ( pan != 0.f )
+    {
+        float matrix[16];
+        if (ComputePan(pan, mWaveFormat->nChannels, matrix))
+        {
+            HRESULT hr = voice->SetOutputMatrix(nullptr, mWaveFormat->nChannels, mEngine->GetOutputChannels(), matrix);
+            ThrowIfFailed( hr );
+        }
+    }
 
     HRESULT hr = voice->Start( 0 );
     ThrowIfFailed( hr );
@@ -345,7 +373,7 @@ SoundEffect::SoundEffect( AudioEngine* engine, const wchar_t* waveFileName )
     HRESULT hr = LoadWAVAudioFromFileEx( waveFileName, wavData, wavInfo );
     if ( FAILED(hr) )
     {
-        DebugTrace( "ERROR: SoundEffect failed (%08X) to load from .wav file \"%S\"\n", hr, waveFileName );
+        DebugTrace( "ERROR: SoundEffect failed (%08X) to load from .wav file \"%ls\"\n", hr, waveFileName );
         throw std::exception( "SoundEffect" );
     }
 
@@ -360,7 +388,7 @@ SoundEffect::SoundEffect( AudioEngine* engine, const wchar_t* waveFileName )
 
     if ( FAILED(hr) )
     {
-        DebugTrace( "ERROR: SoundEffect failed (%08X) to intialize from .wav file \"%S\"\n", hr, waveFileName );
+        DebugTrace( "ERROR: SoundEffect failed (%08X) to intialize from .wav file \"%ls\"\n", hr, waveFileName );
         throw std::exception( "SoundEffect" );
     }
 }
@@ -445,7 +473,13 @@ SoundEffect::~SoundEffect()
 // Public methods.
 void SoundEffect::Play()
 {
-    pImpl->Play();
+    pImpl->Play( 1.f, 0.f, 0.f );
+}
+
+
+void SoundEffect::Play( float volume, float pitch, float pan )
+{
+    pImpl->Play( volume, pitch, pan );
 }
 
 

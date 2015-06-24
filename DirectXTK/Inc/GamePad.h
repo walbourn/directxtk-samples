@@ -13,6 +13,7 @@
 
 #pragma once
 
+#if !defined(WINAPI_FAMILY) || (WINAPI_FAMILY != WINAPI_FAMILY_APP) || (_WIN32_WINNT < 0x0A00)
 #ifndef _XBOX_ONE
 #if !defined(WINAPI_FAMILY) || (WINAPI_FAMILY != WINAPI_FAMILY_PHONE_APP)
 #if (_WIN32_WINNT >= 0x0602)
@@ -20,6 +21,18 @@
 #else
 #pragma comment(lib,"xinput9_1_0.lib")
 #endif
+#endif
+#endif
+#endif
+
+// VS 2010/2012 do not support =default =delete
+#ifndef DIRECTX_CTOR_DEFAULT
+#if defined(_MSC_VER) && (_MSC_VER < 1800)
+#define DIRECTX_CTOR_DEFAULT {}
+#define DIRECTX_CTOR_DELETE ;
+#else
+#define DIRECTX_CTOR_DEFAULT =default;
+#define DIRECTX_CTOR_DELETE =delete;
 #endif
 #endif
 
@@ -30,6 +43,7 @@
 #include <stdint.h>
 #include <intsafe.h>
 #pragma warning(pop)
+
 
 namespace DirectX
 {
@@ -221,7 +235,7 @@ namespace DirectX
         std::unique_ptr<Impl> pImpl;
 
         // Prevent copying.
-        GamePad(GamePad const&);
-        GamePad& operator=(GamePad const&);
+        GamePad(GamePad const&) DIRECTX_CTOR_DELETE
+        GamePad& operator=(GamePad const&) DIRECTX_CTOR_DELETE
     };
 }

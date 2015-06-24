@@ -490,7 +490,7 @@ static DXGI_FORMAT GetDXGIFormat( const DDS_PIXELFORMAT& ddpf )
             // No DXGI format maps to ISBITMASK(0x000000ff,0x0000ff00,0x00ff0000,0x00000000) aka D3DFMT_X8B8G8R8
 
             // Note that many common DDS reader/writers (including D3DX) swap the
-            // the RED/BLUE masks for 10:10:10:2 formats. We assumme
+            // the RED/BLUE masks for 10:10:10:2 formats. We assume
             // below that the 'backwards' header mask is being used since it is most
             // likely written by D3DX. The more robust solution is to use the 'DX10'
             // header extension and specify the DXGI_FORMAT_R10G10B10A2_UNORM format directly
@@ -588,7 +588,7 @@ static DXGI_FORMAT GetDXGIFormat( const DDS_PIXELFORMAT& ddpf )
             return DXGI_FORMAT_BC3_UNORM;
         }
 
-        // While pre-mulitplied alpha isn't directly supported by the DXGI formats,
+        // While pre-multiplied alpha isn't directly supported by the DXGI formats,
         // they are basically the same as these BC formats so they can be mapped
         if (MAKEFOURCC( 'D', 'X', 'T', '2' ) == ddpf.fourCC)
         {
@@ -1829,6 +1829,16 @@ HRESULT DirectX::CreateDDSTextureFromFileEx( ID3D11Device* d3dDevice,
     if ( SUCCEEDED(hr) )
     {
 #if !defined(NO_D3D11_DEBUG_NAME) && ( defined(_DEBUG) || defined(PROFILE) )
+        #if defined(_XBOX_ONE) && defined(_TITLE)
+        if (texture != 0 && *texture != 0)
+        {
+            (*texture)->SetName( fileName );
+        }
+        if (textureView != 0 && *textureView != 0 )
+        {
+            (*textureView)->SetName( fileName );
+        }
+        #else
         if (texture != 0 || textureView != 0)
         {
             CHAR strFileA[MAX_PATH];
@@ -1870,6 +1880,7 @@ HRESULT DirectX::CreateDDSTextureFromFileEx( ID3D11Device* d3dDevice,
                 }
             }
         }
+        #endif
 #endif
 
         if ( alphaMode )
@@ -1943,6 +1954,16 @@ HRESULT DirectX::CreateDDSTextureFromFileEx( ID3D11Device* d3dDevice,
     if ( SUCCEEDED(hr) )
     {
 #if !defined(NO_D3D11_DEBUG_NAME) && ( defined(_DEBUG) || defined(PROFILE) )
+        #if defined(_XBOX_ONE) && defined(_TITLE)
+        if (texture != 0 && *texture != 0)
+        {
+            (*texture)->SetName( fileName );
+        }
+        if (textureView != 0 && *textureView != 0 )
+        {
+            (*textureView)->SetName( fileName );
+        }
+        #else
         if (texture != 0 || textureView != 0)
         {
             CHAR strFileA[MAX_PATH];
@@ -1984,6 +2005,7 @@ HRESULT DirectX::CreateDDSTextureFromFileEx( ID3D11Device* d3dDevice,
                 }
             }
         }
+        #endif
 #endif
 
         if ( alphaMode )
