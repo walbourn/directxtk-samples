@@ -523,6 +523,10 @@ LRESULT CALLBACK WndProc( HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam 
 //--------------------------------------------------------------------------------------
 void DrawGrid( PrimitiveBatch<VertexPositionColor>& batch, FXMVECTOR xAxis, FXMVECTOR yAxis, FXMVECTOR origin, size_t xdivs, size_t ydivs, GXMVECTOR color )
 {
+    g_pImmediateContext->OMSetBlendState( g_States->Opaque(), nullptr, 0xFFFFFFFF );
+    g_pImmediateContext->OMSetDepthStencilState( g_States->DepthNone(), 0 );
+    g_pImmediateContext->RSSetState( g_States->CullCounterClockwise() );
+
     g_BatchEffect->Apply( g_pImmediateContext );
 
     g_pImmediateContext->IASetInputLayout( g_pBatchInputLayout );
