@@ -38,7 +38,6 @@
     <AppxManifest Include="Package.appxmanifest" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="DirectXTK\DirectXTK_Windows8.vcxproj" />
     <None Include="Assets\italic.spritefont">
       <Filter>Assets</Filter>
     </None>
@@ -49,6 +48,7 @@
     <None Include="Assets\ADPCMdroid.xwb">
       <Filter>Assets</Filter>
     </None>
+    <None Include="..\DirectXTK\DirectXTK_Windows8.vcxproj" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="Assets\Tiny_skin.dds">

@@ -91,7 +91,7 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
     <PackageCertificateKeyFile>SimpleSample_TemporaryKey.pfx</PackageCertificateKeyFile>
-    <PackageCertificateThumbprint>CCB2D6C5352AE2B06D3F5C5788AF84F61A6EA50A</PackageCertificateThumbprint>
+    <PackageCertificateThumbprint>CE937F7F2651E8E671B8DBD6B18DE6B253AD9199</PackageCertificateThumbprint>
   </PropertyGroup>
   <ItemDefinitionGroup>
     <Link>
