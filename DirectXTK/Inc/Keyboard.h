@@ -1,4 +1,4 @@
-﻿//--------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------
 // File: Keyboard.h
 //
 // THIS CODE AND INFORMATION IS PROVIDED "AS IS" WITHOUT WARRANTY OF
@@ -30,6 +30,10 @@
 #pragma warning(pop)
 
 #include <memory>
+
+#if defined(WINAPI_FAMILY) && (WINAPI_FAMILY == WINAPI_FAMILY_APP)
+namespace ABI { namespace Windows { namespace UI { namespace Core { struct ICoreWindow; } } } }
+#endif
 
 
 namespace DirectX
@@ -459,8 +463,15 @@ namespace DirectX
         static void __cdecl ProcessMessage(UINT message, WPARAM wParam, LPARAM lParam);
 #endif
 
-#if defined(WINAPI_FAMILY) && (WINAPI_FAMILY == WINAPI_FAMILY_APP) && defined(__cplusplus_winrt)
-        void __cdecl SetWindow(Windows::UI::Core::CoreWindow^ window);
+#if defined(WINAPI_FAMILY) && (WINAPI_FAMILY == WINAPI_FAMILY_APP)
+        void __cdecl SetWindow(ABI::Windows::UI::Core::ICoreWindow* window);
+#ifdef __cplusplus_winrt
+        void __cdecl SetWindow(Windows::UI::Core::CoreWindow^ window)
+        {
+            // See https://msdn.microsoft.com/en-us/library/hh755802.aspx
+            SetWindow(reinterpret_cast<ABI::Windows::UI::Core::ICoreWindow*>(window));
+        }
+#endif
 #endif
 
         // Singleton

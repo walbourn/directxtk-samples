@@ -62,13 +62,6 @@ namespace
 // }
 //
 
-#ifndef __cplusplus_winrt
-#error This implementation requires C++/CX (/ZW)
-#endif
-
-#include <Windows.Foundation.h>
-#include <Windows.UI.Core.h>
-
 class Keyboard::Impl
 {
 public:
@@ -109,6 +102,7 @@ public:
     {
         using namespace Microsoft::WRL;
         using namespace Microsoft::WRL::Wrappers;
+        using namespace ABI::Windows::UI::Core;
 
         if (mWindow.Get() == window)
             return;
@@ -124,11 +118,11 @@ public:
         HRESULT hr = window->add_Activated(Callback<ActivatedHandler>(Activated).Get(), &mActivatedToken);
         ThrowIfFailed(hr);
 
-        ComPtr<ABI::Windows::UI::Core::ICoreDispatcher> dispatcher;
+        ComPtr<ICoreDispatcher> dispatcher;
         hr = window->get_Dispatcher( dispatcher.GetAddressOf() );
         ThrowIfFailed(hr);
 
-        ComPtr<ABI::Windows::UI::Core::ICoreAcceleratorKeys> keys;
+        ComPtr<ICoreAcceleratorKeys> keys;
         hr = dispatcher.As(&keys);
         ThrowIfFailed(hr);
 
@@ -152,14 +146,16 @@ private:
     {
         if (mWindow)
         {
-            ComPtr<ABI::Windows::UI::Core::ICoreDispatcher> dispatcher;
+            using namespace ABI::Windows::UI::Core;
+
+            ComPtr<ICoreDispatcher> dispatcher;
             HRESULT hr = mWindow->get_Dispatcher( dispatcher.GetAddressOf() );
             ThrowIfFailed(hr);
 
             mWindow->remove_Activated(mActivatedToken);
             mActivatedToken.value = 0;
 
-            ComPtr<ABI::Windows::UI::Core::ICoreAcceleratorKeys> keys;
+            ComPtr<ICoreAcceleratorKeys> keys;
             hr = dispatcher.As(&keys);
             ThrowIfFailed(hr);
 
@@ -182,12 +178,15 @@ private:
 
     static HRESULT AcceleratorKeyEvent( IInspectable *, ABI::Windows::UI::Core::IAcceleratorKeyEventArgs* args )
     {
+        using namespace ABI::Windows::System;
+        using namespace ABI::Windows::UI::Core;
+
         auto pImpl = Impl::s_keyboard;
 
         if (!pImpl)
             return S_OK;
 
-        ABI::Windows::UI::Core::CoreAcceleratorKeyEventType evtType;
+        CoreAcceleratorKeyEventType evtType;
         HRESULT hr = args->get_EventType(&evtType);
         ThrowIfFailed(hr);
 
@@ -195,24 +194,24 @@ private:
 
         switch (evtType)
         {
-        case ABI::Windows::UI::Core::CoreAcceleratorKeyEventType_KeyDown:
-        case ABI::Windows::UI::Core::CoreAcceleratorKeyEventType_SystemKeyDown:
+        case CoreAcceleratorKeyEventType_KeyDown:
+        case CoreAcceleratorKeyEventType_SystemKeyDown:
             down = true;
             break;
 
-        case ABI::Windows::UI::Core::CoreAcceleratorKeyEventType_KeyUp:
-        case ABI::Windows::UI::Core::CoreAcceleratorKeyEventType_SystemKeyUp:
+        case CoreAcceleratorKeyEventType_KeyUp:
+        case CoreAcceleratorKeyEventType_SystemKeyUp:
             break;
 
         default:
             return S_OK;
         }
 
-        ABI::Windows::UI::Core::CorePhysicalKeyStatus status;
+        CorePhysicalKeyStatus status;
         hr = args->get_KeyStatus(&status);
         ThrowIfFailed(hr);
 
-        ABI::Windows::System::VirtualKey virtualKey;
+        VirtualKey virtualKey;
         hr = args->get_VirtualKey(&virtualKey);
         ThrowIfFailed(hr);
 
@@ -256,13 +255,10 @@ private:
 Keyboard::Impl* Keyboard::Impl::s_keyboard = nullptr;
 
 
-void Keyboard::SetWindow(Windows::UI::Core::CoreWindow^ window)
+void Keyboard::SetWindow(ABI::Windows::UI::Core::ICoreWindow* window)
 {
-    // See https://msdn.microsoft.com/en-us/library/hh755802.aspx
-    auto iwindow = reinterpret_cast<ABI::Windows::UI::Core::ICoreWindow*>(window);
-    pImpl->SetWindow(iwindow);
+    pImpl->SetWindow(window);
 }
-
 
 #elif defined(_XBOX_ONE) || ( defined(WINAPI_FAMILY) && (WINAPI_FAMILY == WINAPI_FAMILY_PHONE_APP) )
 
