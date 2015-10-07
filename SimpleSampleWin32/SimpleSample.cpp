@@ -33,6 +33,7 @@
 #include "Model.h"
 #include "PrimitiveBatch.h"
 #include "ScreenGrab.h"
+#include "SimpleMath.h"
 #include "SpriteBatch.h"
 #include "SpriteFont.h"
 #include "VertexTypes.h"
@@ -42,6 +43,7 @@
 #include <algorithm>
 
 using namespace DirectX;
+using namespace DirectX::SimpleMath;
 
 //--------------------------------------------------------------------------------------
 // Global Variables
@@ -83,9 +85,9 @@ float                                                   g_audioTimerAcc = 0.f;
 HDEVNOTIFY                                              g_hNewAudio = nullptr;
 #endif
 
-XMMATRIX                            g_World;
-XMMATRIX                            g_View;
-XMMATRIX                            g_Projection;
+Matrix                              g_World;
+Matrix                              g_View;
+Matrix                              g_Projection;
 
 //--------------------------------------------------------------------------------------
 // Forward declarations
@@ -311,9 +313,9 @@ HRESULT InitDevice()
 
     g_Font.reset( new SpriteFont( g_pd3dDevice, L"italic.spritefont" ) );
 
-    g_Shape = GeometricPrimitive::CreateTeapot( g_pImmediateContext, 4.f, 8, false );
+    g_Shape = GeometricPrimitive::CreateTeapot( g_pImmediateContext, 4.f, 8 );
 
-    g_Model = Model::CreateFromSDKMESH( g_pd3dDevice, L"tiny.sdkmesh", *g_FXFactory, true );
+    g_Model = Model::CreateFromSDKMESH( g_pd3dDevice, L"tiny.sdkmesh", *g_FXFactory );
 
     // Load the Texture
     hr = CreateDDSTextureFromFile( g_pd3dDevice, L"seafloor.dds", nullptr, &g_pTextureRV1 );
@@ -325,18 +327,17 @@ HRESULT InitDevice()
         return hr;
 
     // Initialize the world matrices
-    g_World = XMMatrixIdentity();
+    g_World = Matrix::Identity;
 
     // Initialize the view matrix
-    XMVECTOR Eye = XMVectorSet( 0.0f, 3.0f, -6.0f, 0.0f );
-    XMVECTOR At = XMVectorSet( 0.0f, 1.0f, 0.0f, 0.0f );
-    XMVECTOR Up = XMVectorSet( 0.0f, 1.0f, 0.0f, 0.0f );
-    g_View = XMMatrixLookAtLH( Eye, At, Up );
+    Vector3 eye( 0.0f, 3.0f, -6.0f );
+    Vector3 at( 0.0f, 1.0f, 0.0f );
+    g_View = Matrix::CreateLookAt( eye, at, Vector3::UnitY );
 
     g_BatchEffect->SetView( g_View );
 
     // Initialize the projection matrix
-    g_Projection = XMMatrixPerspectiveFovLH( XM_PIDIV4, width / (FLOAT)height, 0.01f, 100.0f );
+    g_Projection = Matrix::CreatePerspectiveFieldOfView( XM_PIDIV4, width / (FLOAT)height, 0.01f, 100.0f );
 
     g_BatchEffect->SetProjection( g_Projection );
 
@@ -589,7 +590,7 @@ void Render()
     }
 
     // Rotate cube around the origin
-    g_World = XMMatrixRotationY( t );
+    g_World = Matrix::CreateRotationY( t );
 
 #ifdef DXTK_AUDIO
 
@@ -633,14 +634,13 @@ void Render()
     g_Sprites->End();
 
     // Draw 3D object
-    XMMATRIX local = XMMatrixMultiply( g_World, XMMatrixTranslation( -2.f, -2.f, 4.f ) );
+    XMMATRIX local = g_World * Matrix::CreateTranslation( 2.f, -2.f, 4.f );
     g_Shape->Draw( local, g_View, g_Projection, Colors::White, g_pTextureRV1 );
 
-    XMVECTOR qid = XMQuaternionIdentity();
     const XMVECTORF32 scale = { 0.01f, 0.01f, 0.01f};
-    const XMVECTORF32 translate = { 3.f, -2.f, 4.f };
-    XMVECTOR rotate = XMQuaternionRotationRollPitchYaw( 0, XM_PI/2.f, XM_PI/2.f );
-    local = XMMatrixMultiply( g_World, XMMatrixTransformation( g_XMZero, qid, scale, g_XMZero, rotate, translate ) );
+    const XMVECTORF32 translate = { -3.f, -2.f, 4.f };
+    XMVECTOR rotate = Quaternion::CreateFromYawPitchRoll( XM_PI/2.f, 0.f, XM_PI/2.f );
+    local = g_World * XMMatrixTransformation( g_XMZero, Quaternion::Identity, scale, g_XMZero, rotate, translate );
     g_Model->Draw( g_pImmediateContext, *g_States, local, g_View, g_Projection );
     //
     // Present our back buffer to our front buffer

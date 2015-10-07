@@ -18,16 +18,6 @@
 #include "..\Common\DeviceResources.h"
 #include "..\Common\StepTimer.h"
 
-#include "Audio.h"
-#include "CommonStates.h"
-#include "Effects.h"
-#include "GeometricPrimitive.h"
-#include "Model.h"
-#include "PrimitiveBatch.h"
-#include "SpriteBatch.h"
-#include "SpriteFont.h"
-#include "VertexTypes.h"
-
 namespace SimpleSample
 {
     // This class renders a scene using DirectXTK
@@ -76,9 +66,9 @@ namespace SimpleSample
 
         bool                                                                    m_retryDefault;
 
-        DirectX::XMFLOAT4X4 m_world;
-        DirectX::XMFLOAT4X4 m_view;
-        DirectX::XMFLOAT4X4 m_projection;
+        DirectX::SimpleMath::Matrix                                             m_world;
+        DirectX::SimpleMath::Matrix                                             m_view;
+        DirectX::SimpleMath::Matrix                                             m_projection;
     };
 }
 

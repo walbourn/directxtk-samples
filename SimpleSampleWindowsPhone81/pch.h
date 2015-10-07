@@ -16,3 +16,16 @@
 #include <concrt.h>
 #include <collection.h>
 #include <ppltasks.h>
+
+#include "Audio.h"
+#include "CommonStates.h"
+#include "DDSTextureLoader.h"
+#include "Effects.h"
+#include "GeometricPrimitive.h"
+#include "Model.h"
+#include "PrimitiveBatch.h"
+#include "SimpleMath.h"
+#include "SpriteBatch.h"
+#include "SpriteFont.h"
+#include "VertexTypes.h"
+

@@ -17,16 +17,6 @@
 
 #include "Direct3DBase.h"
 
-#include "Audio.h"
-#include "CommonStates.h"
-#include "Effects.h"
-#include "GeometricPrimitive.h"
-#include "Model.h"
-#include "PrimitiveBatch.h"
-#include "SpriteBatch.h"
-#include "SpriteFont.h"
-#include "VertexTypes.h"
-
 // This class renders a scene using DirectXTK
 ref class Renderer sealed : public Direct3DBase
 {
@@ -68,7 +58,7 @@ private:
 
     bool                                                                    m_retryDefault;
 
-    DirectX::XMFLOAT4X4 m_world;
-    DirectX::XMFLOAT4X4 m_view;
-    DirectX::XMFLOAT4X4 m_projection;
+    DirectX::SimpleMath::Matrix                                             m_world;
+    DirectX::SimpleMath::Matrix                                             m_view;
+    DirectX::SimpleMath::Matrix                                             m_projection;
 };

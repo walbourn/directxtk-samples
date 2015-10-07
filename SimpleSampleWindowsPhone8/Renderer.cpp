@@ -16,9 +16,8 @@
 #include "pch.h"
 #include "Renderer.h"
 
-#include "DDSTextureLoader.h"
-
 using namespace DirectX;
+using namespace DirectX::SimpleMath;
 using namespace Microsoft::WRL;
 using namespace Windows::Foundation;
 using namespace Windows::UI::Core;
@@ -91,19 +90,18 @@ void Renderer::CreateWindowSizeDependentResources()
 	// made to the swap chain render target. For draw calls to other targets,
 	// this transform should not be applied.
 
-    XMMATRIX projection = 
-                        XMMatrixMultiply(
-				                XMMatrixPerspectiveFovRH(
-					                fovAngleY,
-					                aspectRatio,
-					                0.01f,
-					                100.0f
-					                ),
-                                XMLoadFloat4x4( &m_orientationTransform3D) );
+    Matrix perspectiveMatrix = Matrix::CreatePerspectiveFieldOfView(
+        fovAngleY,
+        aspectRatio,
+        0.01f,
+        100.0f
+        );
 
-    m_batchEffect->SetProjection( projection );
+    Matrix orientationMatrix = m_orientationTransform3D;
 
-	XMStoreFloat4x4( &m_projection, projection );
+    m_projection = perspectiveMatrix * orientationMatrix;
+
+    m_batchEffect->SetProjection(m_projection);
 
     DXGI_MODE_ROTATION rotation = DXGI_MODE_ROTATION_UNSPECIFIED;
     switch (m_orientation)
@@ -151,18 +149,15 @@ void Renderer::Update(float timeTotal, float timeDelta)
 {
     UNREFERENCED_PARAMETER( timeDelta );
 
-	XMVECTOR eye = XMVectorSet(0.0f, 0.7f, 1.5f, 0.0f);
-	XMVECTOR at = XMVectorSet(0.0f, -0.1f, 0.0f, 0.0f);
-	XMVECTOR up = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
+    Vector3 eye(0.0f, 0.7f, 1.5f);
+    Vector3 at(0.0f, -0.1f, 0.0f);
 
-    XMMATRIX view = XMMatrixLookAtRH(eye, at, up);
-    XMMATRIX world = XMMatrixRotationY(timeTotal * XM_PIDIV4);
+    m_view = Matrix::CreateLookAt(eye, at, Vector3::UnitY);
 
-    m_batchEffect->SetView( view );
-    m_batchEffect->SetWorld( XMMatrixIdentity() );
+    m_world = Matrix::CreateRotationY(timeTotal * XM_PIDIV4);
 
-	XMStoreFloat4x4(&m_view, view);
-	XMStoreFloat4x4(&m_world, world);
+    m_batchEffect->SetView(m_view);
+    m_batchEffect->SetWorld(Matrix::Identity);
 
     m_audioTimerAcc -= timeDelta;
     if (m_audioTimerAcc < 0)
@@ -271,17 +266,12 @@ void Renderer::Render()
     m_sprites->End();
 
     // Draw 3D object
-    XMMATRIX world = XMLoadFloat4x4( &m_world );
-    XMMATRIX view = XMLoadFloat4x4( &m_view );
-    XMMATRIX projection = XMLoadFloat4x4( &m_projection );
+    XMMATRIX local = m_world * Matrix::CreateTranslation(-2.f, -2.f, -4.f);
+    m_shape->Draw(local, m_view, m_projection, Colors::White, m_texture1.Get());
 
-    XMMATRIX local = XMMatrixMultiply( world, XMMatrixTranslation( 0.f, -6.f, -4.f ) );
-    m_shape->Draw( local, view, projection, Colors::White, m_texture1.Get() );
-
-    XMVECTOR qid = XMQuaternionIdentity();
-    const XMVECTORF32 scale = { 0.01f, 0.01f, 0.01f};
-    const XMVECTORF32 translate = { 0.f, -2.f, -4.f };
-    XMVECTOR rotate = XMQuaternionRotationRollPitchYaw( 0, XM_PI/2.f, -XM_PI/2.f );
-    local = XMMatrixMultiply( world, XMMatrixTransformation( g_XMZero, qid, scale, g_XMZero, rotate, translate ) );
-    m_model->Draw( m_d3dContext.Get(), *m_states, local, view, projection );
+    const XMVECTORF32 scale = { 0.01f, 0.01f, 0.01f };
+    const XMVECTORF32 translate = { 3.f, -2.f, -4.f };
+    XMVECTOR rotate = Quaternion::CreateFromYawPitchRoll(XM_PI / 2.f, 0.f, -XM_PI / 2.f);
+    local = m_world * XMMatrixTransformation(g_XMZero, Quaternion::Identity, scale, g_XMZero, rotate, translate);
+    m_model->Draw(m_d3dContext.Get(), *m_states, local, m_view, m_projection);
 }

@@ -1,6 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Express 2012 for Windows Phone
+# Visual Studio 2013
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SimpleSample", "SimpleSample.vcxproj", "{1E91BA8A-5E05-4A0C-B800-380838902645}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DirectXTK_WindowsPhone8", "..\DirectXTK\DirectXTK_WindowsPhone8.vcxproj", "{E0B52AE7-E160-4D32-BF3F-910B785E5A8E}"
