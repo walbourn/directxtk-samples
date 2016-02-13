@@ -289,12 +289,12 @@ HRESULT InitDevice()
     g_pImmediateContext->RSSetViewports( 1, &vp );
 
     // Create DirectXTK objects
-    g_States.reset( new CommonStates( g_pd3dDevice ) );
-    g_Sprites.reset( new SpriteBatch( g_pImmediateContext ) );
-    g_FXFactory.reset( new EffectFactory( g_pd3dDevice ) );
-    g_Batch.reset( new PrimitiveBatch<VertexPositionColor>( g_pImmediateContext ) );
+    g_States = std::make_unique<CommonStates>( g_pd3dDevice );
+    g_Sprites = std::make_unique<SpriteBatch>( g_pImmediateContext );
+    g_FXFactory = std::make_unique<EffectFactory>( g_pd3dDevice );
+    g_Batch = std::make_unique<PrimitiveBatch<VertexPositionColor>>( g_pImmediateContext );
 
-    g_BatchEffect.reset( new BasicEffect( g_pd3dDevice ) );
+    g_BatchEffect = std::make_unique<BasicEffect>( g_pd3dDevice );
     g_BatchEffect->SetVertexColorEnabled(true);
 
     {
@@ -311,7 +311,7 @@ HRESULT InitDevice()
             return hr;
     }
 
-    g_Font.reset( new SpriteFont( g_pd3dDevice, L"italic.spritefont" ) );
+    g_Font = std::make_unique<SpriteFont>( g_pd3dDevice, L"italic.spritefont" );
 
     g_Shape = GeometricPrimitive::CreateTeapot( g_pImmediateContext, 4.f, 8 );
 
@@ -348,13 +348,13 @@ HRESULT InitDevice()
 #ifdef _DEBUG
     eflags = eflags | AudioEngine_Debug;
 #endif
-    g_audEngine.reset( new AudioEngine( eflags ) );
+    g_audEngine = std::make_unique<AudioEngine>( eflags );
 
     g_audioEvent = 0;
     g_audioTimerAcc = 10.f;
 
-    g_waveBank.reset( new WaveBank( g_audEngine.get(), L"adpcmdroid.xwb" ) );
-    g_soundEffect.reset( new SoundEffect( g_audEngine.get(), L"MusicMono_adpcm.wav" ) );
+    g_waveBank = std::make_unique<WaveBank>( g_audEngine.get(), L"adpcmdroid.xwb" );
+    g_soundEffect = std::make_unique<SoundEffect>( g_audEngine.get(), L"MusicMono_adpcm.wav" );
     g_effect1 = g_soundEffect->CreateInstance();
     g_effect2 = g_waveBank->CreateInstance( 10 );
 

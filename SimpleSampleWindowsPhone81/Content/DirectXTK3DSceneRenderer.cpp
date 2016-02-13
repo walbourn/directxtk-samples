@@ -77,14 +77,14 @@ void DirectXTK3DSceneRenderer::CreateAudioResources()
     eflags = eflags | AudioEngine_Debug;
 #endif
 
-    m_audEngine.reset(new AudioEngine(eflags));
+    m_audEngine = std::make_unique<AudioEngine>(eflags);
 
     m_audioEvent = 0;
     m_audioTimerAcc = 10.f;
     m_retryDefault = false;
 
-    m_waveBank.reset(new WaveBank(m_audEngine.get(), L"assets\\adpcmdroid.xwb"));
-    m_soundEffect.reset(new SoundEffect(m_audEngine.get(), L"assets\\MusicMono_adpcm.wav"));
+    m_waveBank = std::make_unique<WaveBank>(m_audEngine.get(), L"assets\\adpcmdroid.xwb");
+    m_soundEffect = std::make_unique<SoundEffect>(m_audEngine.get(), L"assets\\MusicMono_adpcm.wav");
     m_effect1 = m_soundEffect->CreateInstance();
     m_effect2 = m_waveBank->CreateInstance(10);
 
@@ -223,17 +223,17 @@ void DirectXTK3DSceneRenderer::CreateDeviceDependentResources()
 {
     // Create DirectXTK objects
     auto device = m_deviceResources->GetD3DDevice();
-    m_states.reset(new CommonStates(device));
+    m_states = std::make_unique<CommonStates>(device);
 
     auto fx = new EffectFactory( device );
     fx->SetDirectory( L"Assets" );
     m_fxFactory.reset( fx );
 
     auto context = m_deviceResources->GetD3DDeviceContext();
-    m_sprites.reset(new SpriteBatch(context));
-    m_batch.reset(new PrimitiveBatch<VertexPositionColor>(context));
+    m_sprites = std::make_unique<SpriteBatch>(context);
+    m_batch = std::make_unique<PrimitiveBatch<VertexPositionColor>>(context);
 
-    m_batchEffect.reset(new BasicEffect(device));
+    m_batchEffect = std::make_unique<BasicEffect>(device);
     m_batchEffect->SetVertexColorEnabled(true);
 
     {
@@ -250,7 +250,7 @@ void DirectXTK3DSceneRenderer::CreateDeviceDependentResources()
             );
     }
 
-    m_font.reset(new SpriteFont(device, L"assets\\italic.spritefont"));
+    m_font = std::make_unique<SpriteFont>(device, L"assets\\italic.spritefont");
 
     m_shape = GeometricPrimitive::CreateTeapot(context, 4.f, 8);
 
