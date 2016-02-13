@@ -35,11 +35,17 @@ namespace SimpleSample
 		void OnOrientationChanged(Windows::Graphics::Display::DisplayInformation^ sender, Platform::Object^ args);
 		void OnDisplayContentsInvalidated(Windows::Graphics::Display::DisplayInformation^ sender, Platform::Object^ args);
 
+        // DeviceWatcher event handlers.
+        void OnAudioDeviceAdded(Windows::Devices::Enumeration::DeviceWatcher^ sender, Windows::Devices::Enumeration::DeviceInformation^ args);
+        void OnAudioDeviceUpdated(Windows::Devices::Enumeration::DeviceWatcher^ sender, Windows::Devices::Enumeration::DeviceInformationUpdate^ args);
+
 	private:
 		std::shared_ptr<DX::DeviceResources> m_deviceResources;
 		std::unique_ptr<SimpleSampleMain> m_main;
 		bool m_windowClosed;
 		bool m_windowVisible;
+
+        Windows::Devices::Enumeration::DeviceWatcher^ m_audioWatcher;
 	};
 }
 

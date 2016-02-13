@@ -14,6 +14,7 @@ using namespace Windows::UI::Input;
 using namespace Windows::System;
 using namespace Windows::Foundation;
 using namespace Windows::Graphics::Display;
+using namespace Windows::Devices::Enumeration;
 
 // The main function is only used to initialize our IFrameworkView class.
 [Platform::MTAThread]
@@ -52,6 +53,13 @@ void App::Initialize(CoreApplicationView^ applicationView)
 	// At this point we have access to the device. 
 	// We can create the device-dependent resources.
 	m_deviceResources = std::make_shared<DX::DeviceResources>();
+
+    m_audioWatcher = DeviceInformation::CreateWatcher(DeviceClass::AudioRender);
+
+    m_audioWatcher->Added += ref new TypedEventHandler<DeviceWatcher^, DeviceInformation^>(this, &App::OnAudioDeviceAdded);
+    m_audioWatcher->Updated += ref new TypedEventHandler<DeviceWatcher^, DeviceInformationUpdate^>(this, &App::OnAudioDeviceUpdated);
+
+    m_audioWatcher->Start();
 }
 
 // Called when the CoreWindow object is created (or re-created).
@@ -189,4 +197,18 @@ void App::OnOrientationChanged(DisplayInformation^ sender, Object^ args)
 void App::OnDisplayContentsInvalidated(DisplayInformation^ sender, Object^ args)
 {
 	m_deviceResources->ValidateDevice();
+}
+
+// DeviceWatcher event handlers.
+
+void App::OnAudioDeviceAdded(Windows::Devices::Enumeration::DeviceWatcher^ sender, Windows::Devices::Enumeration::DeviceInformation^ args)
+{
+    if (m_main)
+        m_main->NewAudioDevice();
+}
+
+void App::OnAudioDeviceUpdated(Windows::Devices::Enumeration::DeviceWatcher^ sender, Windows::Devices::Enumeration::DeviceInformationUpdate^ args)
+{
+    if (m_main)
+        m_main->NewAudioDevice();
 }

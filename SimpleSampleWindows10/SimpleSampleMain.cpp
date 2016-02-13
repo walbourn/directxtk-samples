@@ -80,6 +80,13 @@ bool SimpleSampleMain::Render()
 	return true;
 }
 
+// Signals a new audio device is available
+void SimpleSampleMain::NewAudioDevice()
+{
+    if (m_sceneRenderer)
+        m_sceneRenderer->NewAudioDevice();
+}
+
 // Notifies renderers that device resources need to be released.
 void SimpleSampleMain::OnDeviceLost()
 {

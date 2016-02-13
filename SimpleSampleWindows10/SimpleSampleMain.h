@@ -16,6 +16,9 @@ namespace SimpleSample
 		void Update();
 		bool Render();
 
+        // Signals a new audio device is available
+        void NewAudioDevice();
+
 		// IDeviceNotify
 		virtual void OnDeviceLost();
 		virtual void OnDeviceRestored();
