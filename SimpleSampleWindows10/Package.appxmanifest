@@ -7,14 +7,14 @@
   IgnorableNamespaces="uap mp">
 
   <Identity
-    Name="997b70fc-d78e-48b7-ac75-4e3ed52d945a"
+    Name="7cb51bab-3b6e-4add-8458-90cdbec86024"
     Publisher="CN=chuckw"
     Version="1.0.0.0" />
 
-  <mp:PhoneIdentity PhoneProductId="997b70fc-d78e-48b7-ac75-4e3ed52d945a" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
+  <mp:PhoneIdentity PhoneProductId="7cb51bab-3b6e-4add-8458-90cdbec86024" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
 
   <Properties>
-    <DisplayName>SimpleSample</DisplayName>
+    <DisplayName>DirectXTKSimpleSample</DisplayName>
     <PublisherDisplayName>chuckw</PublisherDisplayName>
     <Logo>Assets\StoreLogo.png</Logo>
   </Properties>
@@ -30,12 +30,12 @@
   <Applications>
     <Application Id="App"
       Executable="$targetnametoken$.exe"
-      EntryPoint="SimpleSample.App">
+      EntryPoint="DirectXTKSimpleSample.App">
       <uap:VisualElements
-        DisplayName="SimpleSample"
+        DisplayName="DirectXTKSimpleSample"
         Square150x150Logo="Assets\Logo.png"
         Square44x44Logo="Assets\SmallLogo.png"
-        Description="SimpleSample"
+        Description="DirectXTKSimpleSample"
         BackgroundColor="transparent">
         <uap:DefaultTile Wide310x150Logo="Assets\WideLogo.png"/>
         <uap:SplashScreen Image="Assets\SplashScreen.png" />
