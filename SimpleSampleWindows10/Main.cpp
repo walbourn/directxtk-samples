@@ -17,6 +17,7 @@ using namespace Windows::UI::ViewManagement;
 using namespace Windows::System;
 using namespace Windows::Foundation;
 using namespace Windows::Graphics::Display;
+using namespace Windows::Devices::Enumeration;
 using namespace DirectX;
 
 ref class ViewProvider sealed : public IFrameworkView
@@ -46,6 +47,13 @@ public:
             ref new EventHandler<Platform::Object^>(this, &ViewProvider::OnResuming);
 
         m_game = std::make_unique<Game>();
+
+        m_audioWatcher = DeviceInformation::CreateWatcher(DeviceClass::AudioRender);
+
+        m_audioWatcher->Added += ref new TypedEventHandler<DeviceWatcher^, DeviceInformation^>(this, &ViewProvider::OnAudioDeviceAdded);
+        m_audioWatcher->Updated += ref new TypedEventHandler<DeviceWatcher^, DeviceInformationUpdate^>(this, &ViewProvider::OnAudioDeviceUpdated);
+
+        m_audioWatcher->Start();
     }
 
     virtual void Uninitialize()
@@ -241,6 +249,16 @@ protected:
         m_game->ValidateDevice();
     }
 
+    void OnAudioDeviceAdded(Windows::Devices::Enumeration::DeviceWatcher^ sender, Windows::Devices::Enumeration::DeviceInformation^ args)
+    {
+        m_game->NewAudioDevice();
+    }
+
+    void OnAudioDeviceUpdated(Windows::Devices::Enumeration::DeviceWatcher^ sender, Windows::Devices::Enumeration::DeviceInformationUpdate^ args)
+    {
+        m_game->NewAudioDevice();
+    }
+
 private:
     bool                    m_exit;
     bool                    m_visible;
@@ -251,6 +269,8 @@ private:
 
     Windows::Graphics::Display::DisplayOrientations	m_nativeOrientation;
     Windows::Graphics::Display::DisplayOrientations	m_currentOrientation;
+
+    Windows::Devices::Enumeration::DeviceWatcher^ m_audioWatcher;
 
     inline int ConvertDipsToPixels(float dips) const
     {
