@@ -2,12 +2,12 @@
 <Package xmlns="http://schemas.microsoft.com/appx/2010/manifest">
 
   <Identity Name="cb375617-4730-442b-bda4-7b1c6f5b720e"
-            Publisher="CN=chuckw"
+            Publisher="CN=Microsoft Corporation, O=Microsoft Corporation, L=Redmond, S=Washington, C=US"
             Version="1.0.0.0" />
 
   <Properties>
     <DisplayName>SimpleSample</DisplayName>
-    <PublisherDisplayName>chuckw</PublisherDisplayName>
+    <PublisherDisplayName>Microsoft Corporation</PublisherDisplayName>
     <Logo>Assets\StoreLogo.png</Logo>
   </Properties>
 

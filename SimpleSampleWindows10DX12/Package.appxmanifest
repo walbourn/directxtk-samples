@@ -8,14 +8,14 @@
 
   <Identity
     Name="e3d88ade-aa5b-4784-bb84-5290369c8738"
-    Publisher="CN=chuckw"
+    Publisher="CN=Microsoft Corporation, O=Microsoft Corporation, L=Redmond, S=Washington, C=US"
     Version="1.0.0.0" />
 
   <mp:PhoneIdentity PhoneProductId="e3d88ade-aa5b-4784-bb84-5290369c8738" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
 
   <Properties>
     <DisplayName>DirectXTKSimpleSample</DisplayName>
-    <PublisherDisplayName>chuckw</PublisherDisplayName>
+    <PublisherDisplayName>Microsoft Corporation</PublisherDisplayName>
     <Logo>Assets\StoreLogo.png</Logo>
   </Properties>
 

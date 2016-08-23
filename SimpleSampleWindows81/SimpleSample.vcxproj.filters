@@ -55,7 +55,6 @@
     <AppxManifest Include="Package.appxmanifest" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="SimpleSample_TemporaryKey.pfx" />
     <None Include="Assets\italic.spritefont">
       <Filter>Assets</Filter>
     </None>

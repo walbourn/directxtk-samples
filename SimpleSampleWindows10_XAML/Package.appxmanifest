@@ -8,14 +8,14 @@
 
   <Identity
     Name="e5328dea-cdde-4151-b1b7-42b0df404cd2"
-    Publisher="CN=chuckw"
+    Publisher="CN=Microsoft Corporation, O=Microsoft Corporation, L=Redmond, S=Washington, C=US"
     Version="1.0.0.0" />
 
   <mp:PhoneIdentity PhoneProductId="e5328dea-cdde-4151-b1b7-42b0df404cd2" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
 
   <Properties>
     <DisplayName>SimpleSampleWindows10_XAML</DisplayName>
-    <PublisherDisplayName>chuckw</PublisherDisplayName>
+    <PublisherDisplayName>Microsoft Corporation</PublisherDisplayName>
     <Logo>Assets\StoreLogo.png</Logo>
   </Properties>
 

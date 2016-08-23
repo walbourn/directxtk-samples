@@ -19,6 +19,7 @@
 *.VC.db
 ARM
 "Generated Files"
+SimpleSampleWindows10_XAML/Generated Files/
 Bin
 ipch
 Debug
