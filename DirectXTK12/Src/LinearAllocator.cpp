@@ -43,13 +43,11 @@ LinearAllocatorPage::LinearAllocatorPage()
     : pPrevPage(nullptr)
     , pNextPage(nullptr)
     , mMemory(nullptr)
-    , mUploadResource(nullptr)
-    , mFence(nullptr)
     , mPendingFence(0)
     , mGpuAddress {}
     , mOffset(0)
     , mSize(0)
-    , mRefCount(0)
+    , mRefCount(1)
 {
 }
 
@@ -64,22 +62,32 @@ size_t LinearAllocatorPage::Suballocate(_In_ size_t size, _In_ size_t alignment)
     return offset;
 }
 
+void LinearAllocatorPage::Release()
+{
+    assert(mRefCount > 0); 
+
+    if (mRefCount.fetch_sub(1) == 1)
+    {
+        mUploadResource->Unmap(0, nullptr);
+        delete this;
+    }
+}
+
 LinearAllocator::LinearAllocator(
     _In_ ID3D12Device* pDevice,
     _In_ size_t pageSize,
     _In_ size_t preallocateBytes)
-    : m_pendingPages( nullptr )
+    : m_device(pDevice) 
+    , m_pendingPages( nullptr )
     , m_usedPages( nullptr )
     , m_unusedPages( nullptr )
-    , m_increment( 0 )
+    , m_increment(pageSize)
+    , m_numPending(0)
+    , m_totalPages(0)
 {
-    m_increment = pageSize;
-    m_usedPages = nullptr;
-    m_unusedPages = nullptr;
-    m_pendingPages = nullptr;
-    m_device = pDevice;
-    m_totalPages = 0;
-    m_numPending = 0;
+#if defined(_DEBUG) || defined(PROFILE)
+    m_debugName = L"LinearAllocator";
+#endif
 
     size_t preallocatePageCount = ( ( preallocateBytes + pageSize - 1 ) / pageSize );
     for (size_t preallocatePages = 0; preallocateBytes != 0 && preallocatePages < preallocatePageCount; ++preallocatePages )
@@ -150,7 +158,8 @@ void LinearAllocator::FenceCommittedPages(_In_ ID3D12CommandQueue* commandQueue)
         // Disconnect from the list
         page->pPrevPage = nullptr;
 
-        if (page->RefCount() == 0)
+        // This implies the allocator is the only remaining reference to the page, and therefore the memory is ready for re-use.
+        if (page->RefCount() == 1)
         {
             // Signal the fence
             numReady++;
@@ -295,10 +304,12 @@ LinearAllocatorPage* LinearAllocator::GetNewPage()
         return nullptr;
     }
 
-    if (m_debugName.size() > 0)
+#if defined(_DEBUG) || defined(PROFILE)
+    if (!m_debugName.empty())
     {
         spResource->SetName(m_debugName.c_str());
     }
+#endif
 
     // Get a pointer to the memory
     void* pMemory = nullptr;
@@ -315,15 +326,17 @@ LinearAllocatorPage* LinearAllocator::GetNewPage()
         return nullptr;
     }
 
+    SetDebugObjectName(spFence.Get(), L"LinearAllocator");
+
     // Add the page to the page list
     LinearAllocatorPage* page = new LinearAllocatorPage;
     page->mSize = m_increment;
     page->mMemory = pMemory;
     page->pPrevPage = nullptr;
     page->pNextPage = m_unusedPages;
-    page->mUploadResource = spResource;
-    page->mFence = spFence;
     page->mGpuAddress = spResource->GetGPUVirtualAddress();
+    page->mUploadResource.Swap(spResource);
+    page->mFence.Swap(spFence);
 
     // Set as head of the list
     page->pNextPage = m_unusedPages;
@@ -439,10 +452,10 @@ void LinearAllocator::FreePages( LinearAllocatorPage* page )
     {
         LinearAllocatorPage* nextPage = page->pNextPage;
 
-        page->mUploadResource->Unmap( 0, nullptr );
-        delete page;
+        page->Release();
 
         page = nextPage;
+        assert(m_totalPages > 0);
         m_totalPages--;
     }
 }
@@ -469,6 +482,7 @@ void LinearAllocator::ValidatePageLists()
 }
 #endif
 
+#if defined(_DEBUG) || defined(PROFILE)
 void LinearAllocator::SetDebugName(const char* name)
 {
     wchar_t wname[MAX_PATH] = {};
@@ -496,3 +510,5 @@ void LinearAllocator::SetPageDebugName(LinearAllocatorPage* list)
         page->mUploadResource->SetName(m_debugName.c_str());
     }
 }
+#endif
+

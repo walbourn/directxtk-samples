@@ -96,6 +96,17 @@ namespace
             }
         }
 
+        // Explicitly destroy LinearAllocators inside a critical section
+        ~DeviceAllocator()
+        {
+            ScopedLock lock(mMutex);
+
+            for (auto& allocator : mPools)
+            {
+                allocator.reset();
+            }
+        }
+
         GraphicsResource Alloc(_In_ size_t size, _In_ size_t alignment)
         {
             ScopedLock lock(mMutex);
@@ -250,8 +261,10 @@ GraphicsMemory::~GraphicsMemory()
 {
 }
 
+
 GraphicsResource GraphicsMemory::Allocate(size_t size, size_t alignment)
 {
+    assert(alignment >= 4); // Should use at least DWORD alignment
     return std::move(pImpl->Allocate(size, alignment));
 }
 
@@ -260,6 +273,7 @@ void GraphicsMemory::Commit(_In_ ID3D12CommandQueue* commandQueue)
 {
     pImpl->Commit(commandQueue);
 }
+
 
 void GraphicsMemory::GarbageCollect()
 {
