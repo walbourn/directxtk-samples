@@ -17,6 +17,7 @@
 *.lastbuildstate
 *.ilk
 *.VC.db
+.vs
 ARM
 "Generated Files"
 SimpleSampleWindows10_XAML/Generated Files/
