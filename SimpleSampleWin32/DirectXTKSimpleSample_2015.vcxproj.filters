@@ -56,5 +56,6 @@
     <None Include="tiny.sdkmesh">
       <Filter>Assets</Filter>
     </None>
+    <None Include="packages.config" />
   </ItemGroup>
 </Project>
