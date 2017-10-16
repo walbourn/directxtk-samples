@@ -184,8 +184,15 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         return 0;
 
     case WM_PAINT:
-        hdc = BeginPaint(hWnd, &ps);
-        EndPaint(hWnd, &ps);
+        if (s_in_sizemove && game)
+        {
+            game->Tick();
+        }
+        else
+        {
+            hdc = BeginPaint(hWnd, &ps);
+            EndPaint(hWnd, &ps);
+        }
         break;
 
     case WM_SIZE:
