@@ -257,7 +257,7 @@ void DX::DeviceResources::CreateWindowSizeDependentResources()
     else
     {
         // Otherwise, create a new one using the same adapter as the existing Direct3D device.
-        DXGI_SWAP_CHAIN_DESC1 swapChainDesc = {0};
+        DXGI_SWAP_CHAIN_DESC1 swapChainDesc = {};
 
         swapChainDesc.Width = lround(m_d3dRenderTargetSize.Width); // Match the size of the window.
         swapChainDesc.Height = lround(m_d3dRenderTargetSize.Height);

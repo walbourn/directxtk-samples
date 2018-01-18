@@ -275,7 +275,7 @@ void DX::DeviceResources::CreateWindowSizeDependentResources()
 	{
 		// Otherwise, create a new one using the same adapter as the existing Direct3D device.
 		DXGI_SCALING scaling = DisplayMetrics::SupportHighResolutions ? DXGI_SCALING_NONE : DXGI_SCALING_STRETCH;
-		DXGI_SWAP_CHAIN_DESC1 swapChainDesc = {0};
+		DXGI_SWAP_CHAIN_DESC1 swapChainDesc = {};
 
 		swapChainDesc.Width = lround(m_d3dRenderTargetSize.Width);		// Match the size of the window.
 		swapChainDesc.Height = lround(m_d3dRenderTargetSize.Height);
@@ -386,7 +386,7 @@ void DX::DeviceResources::CreateWindowSizeDependentResources()
 		);
 
 	// Setup inverse scale on the swap chain
-	DXGI_MATRIX_3X2_F inverseScale = { 0 };
+	DXGI_MATRIX_3X2_F inverseScale = {};
 	inverseScale._11 = 1.0f / m_effectiveCompositionScaleX;
 	inverseScale._22 = 1.0f / m_effectiveCompositionScaleY;
 	ComPtr<IDXGISwapChain2> spSwapChain2;
@@ -669,7 +669,7 @@ void DX::DeviceResources::Present()
 	// The first argument instructs DXGI to block until VSync, putting the application
 	// to sleep until the next VSync. This ensures we don't waste any cycles rendering
 	// frames that will never be displayed to the screen.
-	DXGI_PRESENT_PARAMETERS parameters = { 0 };
+	DXGI_PRESENT_PARAMETERS parameters = {};
 	HRESULT hr = m_swapChain->Present1(1, 0, &parameters);
 
 	// Discard the contents of the render target.
