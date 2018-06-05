@@ -5,12 +5,14 @@
 #include "pch.h"
 #include "Game.h"
 
+extern void ExitGame();
+
 using namespace DirectX;
 using namespace DirectX::SimpleMath;
 
 using Microsoft::WRL::ComPtr;
 
-Game::Game()
+Game::Game() noexcept(false)
 {
     m_deviceResources = std::make_unique<DX::DeviceResources>();
     m_deviceResources->RegisterDeviceNotify(this);
@@ -133,14 +135,14 @@ void Game::Update(DX::StepTimer const& timer)
     {
         if (pad.IsViewPressed())
         {
-            PostQuitMessage(0);
+            ExitGame();
         }
     }
 
     auto kb = m_keyboard->GetState();
     if (kb.Escape)
     {
-        PostQuitMessage(0);
+        ExitGame();
     }
 }
 #pragma endregion
@@ -201,7 +203,7 @@ void Game::Clear()
 
     // Clear the views.
     auto context = m_deviceResources->GetD3DDeviceContext();
-    auto renderTarget = m_deviceResources->GetBackBufferRenderTargetView();
+    auto renderTarget = m_deviceResources->GetRenderTargetView();
     auto depthStencil = m_deviceResources->GetDepthStencilView();
 
     context->ClearRenderTargetView(renderTarget, Colors::CornflowerBlue);
@@ -287,6 +289,12 @@ void Game::OnResuming()
 #ifdef DXTK_AUDIO
     m_audEngine->Resume();
 #endif
+}
+
+void Game::OnWindowMoved()
+{
+    auto r = m_deviceResources->GetOutputSize();
+    m_deviceResources->WindowSizeChanged(r.right, r.bottom);
 }
 
 void Game::OnWindowSizeChanged(int width, int height)

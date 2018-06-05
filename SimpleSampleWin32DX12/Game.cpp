@@ -5,12 +5,14 @@
 #include "pch.h"
 #include "Game.h"
 
+extern void ExitGame();
+
 using namespace DirectX;
 using namespace DirectX::SimpleMath;
 
 using Microsoft::WRL::ComPtr;
 
-Game::Game()
+Game::Game() noexcept(false)
 {
     m_deviceResources = std::make_unique<DX::DeviceResources>();
     m_deviceResources->RegisterDeviceNotify(this);
@@ -18,6 +20,11 @@ Game::Game()
 
 Game::~Game()
 {
+    if (m_deviceResources)
+    {
+        m_deviceResources->WaitForGpu();
+    }
+
     if (m_audEngine)
     {
         m_audEngine->Suspend();
@@ -305,6 +312,12 @@ void Game::OnResuming()
     m_gamePadButtons.Reset();
     m_keyboardButtons.Reset();
     m_audEngine->Resume();
+}
+
+void Game::OnWindowMoved()
+{
+    auto r = m_deviceResources->GetOutputSize();
+    m_deviceResources->WindowSizeChanged(r.right, r.bottom);
 }
 
 void Game::OnWindowSizeChanged(int width, int height)

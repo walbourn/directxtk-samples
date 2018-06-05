@@ -17,6 +17,13 @@ namespace
 
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 
+// Indicates to hybrid graphics systems to prefer the discrete part by default
+extern "C"
+{
+    __declspec(dllexport) DWORD NvOptimusEnablement = 0x00000001;
+    __declspec(dllexport) int AmdPowerXpressRequestHighPerformance = 1;
+}
+
 // Entry point
 int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPWSTR lpCmdLine, _In_ int nCmdShow)
 {
@@ -195,6 +202,13 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         }
         break;
 
+    case WM_MOVE:
+        if (game)
+        {
+            game->OnWindowMoved();
+        }
+        break;
+
     case WM_SIZE:
         if (wParam == SIZE_MINIMIZED)
         {
@@ -263,7 +277,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             if (!s_in_suspend && game)
                 game->OnSuspending();
             s_in_suspend = true;
-            return true;
+            return TRUE;
 
         case PBT_APMRESUMESUSPEND:
             if (!s_minimized)
@@ -272,7 +286,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                     game->OnResuming();
                 s_in_suspend = false;
             }
-            return true;
+            return TRUE;
         }
         break;
 
@@ -311,7 +325,19 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             s_fullscreen = !s_fullscreen;
         }
         break;
+
+    case WM_MENUCHAR:
+        // A menu is active and the user presses a key that does not correspond
+        // to any mnemonic or accelerator key. Ignore so we don't produce an error beep.
+        return MAKELRESULT(0, MNC_CLOSE);
     }
 
     return DefWindowProc(hWnd, message, wParam, lParam);
+}
+
+
+// Exit helper
+void ExitGame()
+{
+    PostQuitMessage(0);
 }

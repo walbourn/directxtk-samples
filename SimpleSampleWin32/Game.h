@@ -14,7 +14,7 @@ class Game : public DX::IDeviceNotify
 {
 public:
 
-    Game();
+    Game() noexcept(false);
     ~Game();
 
     // Initialization and management
@@ -22,10 +22,6 @@ public:
 
     // Basic game loop
     void Tick();
-    void Render();
-
-    // Rendering helpers
-    void Clear();
 
     // IDeviceNotify
     virtual void OnDeviceLost() override;
@@ -36,6 +32,7 @@ public:
     void OnDeactivated();
     void OnSuspending();
     void OnResuming();
+    void OnWindowMoved();
     void OnWindowSizeChanged(int width, int height);
 #ifdef DXTK_AUDIO
     void NewAudioDevice();
@@ -47,6 +44,9 @@ public:
 private:
 
     void Update(DX::StepTimer const& timer);
+    void Render();
+
+    void Clear();
 
     void CreateDeviceDependentResources();
     void CreateWindowSizeDependentResources();

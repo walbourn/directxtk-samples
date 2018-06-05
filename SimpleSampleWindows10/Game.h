@@ -14,17 +14,13 @@ class Game : public DX::IDeviceNotify
 {
 public:
 
-    Game();
+    Game() noexcept(false);
 
     // Initialization and management
     void Initialize(IUnknown* window, int width, int height, DXGI_MODE_ROTATION rotation);
 
     // Basic game loop
     void Tick();
-    void Render();
-
-    // Rendering helpers
-    void Clear();
 
     // IDeviceNotify
     virtual void OnDeviceLost() override;
@@ -45,6 +41,9 @@ public:
 private:
 
     void Update(DX::StepTimer const& timer);
+    void Render();
+
+    void Clear();
 
     void CreateDeviceDependentResources();
     void CreateWindowSizeDependentResources();
