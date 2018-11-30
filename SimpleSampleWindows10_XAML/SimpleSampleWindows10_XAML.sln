@@ -8,9 +8,11 @@ EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|ARM = Debug|ARM
+		Debug|ARM64 = Debug|ARM64
 		Debug|x64 = Debug|x64
 		Debug|x86 = Debug|x86
 		Release|ARM = Release|ARM
+		Release|ARM64 = Release|ARM64
 		Release|x64 = Release|x64
 		Release|x86 = Release|x86
 	EndGlobalSection
@@ -18,6 +20,9 @@ Global
 		{2A1A7B34-A417-43C0-A4E7-120E33E8799B}.Debug|ARM.ActiveCfg = Debug|ARM
 		{2A1A7B34-A417-43C0-A4E7-120E33E8799B}.Debug|ARM.Build.0 = Debug|ARM
 		{2A1A7B34-A417-43C0-A4E7-120E33E8799B}.Debug|ARM.Deploy.0 = Debug|ARM
+		{2A1A7B34-A417-43C0-A4E7-120E33E8799B}.Debug|ARM64.ActiveCfg = Debug|ARM64
+		{2A1A7B34-A417-43C0-A4E7-120E33E8799B}.Debug|ARM64.Build.0 = Debug|ARM64
+		{2A1A7B34-A417-43C0-A4E7-120E33E8799B}.Debug|ARM64.Deploy.0 = Debug|ARM64
 		{2A1A7B34-A417-43C0-A4E7-120E33E8799B}.Debug|x64.ActiveCfg = Debug|x64
 		{2A1A7B34-A417-43C0-A4E7-120E33E8799B}.Debug|x64.Build.0 = Debug|x64
 		{2A1A7B34-A417-43C0-A4E7-120E33E8799B}.Debug|x64.Deploy.0 = Debug|x64
@@ -27,6 +32,9 @@ Global
 		{2A1A7B34-A417-43C0-A4E7-120E33E8799B}.Release|ARM.ActiveCfg = Release|ARM
 		{2A1A7B34-A417-43C0-A4E7-120E33E8799B}.Release|ARM.Build.0 = Release|ARM
 		{2A1A7B34-A417-43C0-A4E7-120E33E8799B}.Release|ARM.Deploy.0 = Release|ARM
+		{2A1A7B34-A417-43C0-A4E7-120E33E8799B}.Release|ARM64.ActiveCfg = Release|ARM64
+		{2A1A7B34-A417-43C0-A4E7-120E33E8799B}.Release|ARM64.Build.0 = Release|ARM64
+		{2A1A7B34-A417-43C0-A4E7-120E33E8799B}.Release|ARM64.Deploy.0 = Release|ARM64
 		{2A1A7B34-A417-43C0-A4E7-120E33E8799B}.Release|x64.ActiveCfg = Release|x64
 		{2A1A7B34-A417-43C0-A4E7-120E33E8799B}.Release|x64.Build.0 = Release|x64
 		{2A1A7B34-A417-43C0-A4E7-120E33E8799B}.Release|x64.Deploy.0 = Release|x64
@@ -36,5 +44,8 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {719D7964-837C-4583-A70B-9096B97EBAD1}
 	EndGlobalSection
 EndGlobal

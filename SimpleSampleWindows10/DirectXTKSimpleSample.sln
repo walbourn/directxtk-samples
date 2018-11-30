@@ -8,9 +8,11 @@ EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|ARM = Debug|ARM
+		Debug|ARM64 = Debug|ARM64
 		Debug|x64 = Debug|x64
 		Debug|x86 = Debug|x86
 		Release|ARM = Release|ARM
+		Release|ARM64 = Release|ARM64
 		Release|x64 = Release|x64
 		Release|x86 = Release|x86
 	EndGlobalSection
@@ -18,6 +20,9 @@ Global
 		{4FE11F27-DB64-424A-91DC-67E9C5F871C5}.Debug|ARM.ActiveCfg = Debug|ARM
 		{4FE11F27-DB64-424A-91DC-67E9C5F871C5}.Debug|ARM.Build.0 = Debug|ARM
 		{4FE11F27-DB64-424A-91DC-67E9C5F871C5}.Debug|ARM.Deploy.0 = Debug|ARM
+		{4FE11F27-DB64-424A-91DC-67E9C5F871C5}.Debug|ARM64.ActiveCfg = Debug|ARM64
+		{4FE11F27-DB64-424A-91DC-67E9C5F871C5}.Debug|ARM64.Build.0 = Debug|ARM64
+		{4FE11F27-DB64-424A-91DC-67E9C5F871C5}.Debug|ARM64.Deploy.0 = Debug|ARM64
 		{4FE11F27-DB64-424A-91DC-67E9C5F871C5}.Debug|x64.ActiveCfg = Debug|x64
 		{4FE11F27-DB64-424A-91DC-67E9C5F871C5}.Debug|x64.Build.0 = Debug|x64
 		{4FE11F27-DB64-424A-91DC-67E9C5F871C5}.Debug|x64.Deploy.0 = Debug|x64
@@ -27,6 +32,9 @@ Global
 		{4FE11F27-DB64-424A-91DC-67E9C5F871C5}.Release|ARM.ActiveCfg = Release|ARM
 		{4FE11F27-DB64-424A-91DC-67E9C5F871C5}.Release|ARM.Build.0 = Release|ARM
 		{4FE11F27-DB64-424A-91DC-67E9C5F871C5}.Release|ARM.Deploy.0 = Release|ARM
+		{4FE11F27-DB64-424A-91DC-67E9C5F871C5}.Release|ARM64.ActiveCfg = Release|ARM64
+		{4FE11F27-DB64-424A-91DC-67E9C5F871C5}.Release|ARM64.Build.0 = Release|ARM64
+		{4FE11F27-DB64-424A-91DC-67E9C5F871C5}.Release|ARM64.Deploy.0 = Release|ARM64
 		{4FE11F27-DB64-424A-91DC-67E9C5F871C5}.Release|x64.ActiveCfg = Release|x64
 		{4FE11F27-DB64-424A-91DC-67E9C5F871C5}.Release|x64.Build.0 = Release|x64
 		{4FE11F27-DB64-424A-91DC-67E9C5F871C5}.Release|x64.Deploy.0 = Release|x64
@@ -36,5 +44,8 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {87553C85-B6DF-4179-BDF1-CC01DCA9AFF6}
 	EndGlobalSection
 EndGlobal
