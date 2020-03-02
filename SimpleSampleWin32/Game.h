@@ -34,9 +34,7 @@ public:
     void OnResuming();
     void OnWindowMoved();
     void OnWindowSizeChanged(int width, int height);
-#ifdef DXTK_AUDIO
     void NewAudioDevice();
-#endif
 
     // Properties
     void GetDefaultSize( int& width, int& height ) const;
@@ -74,24 +72,21 @@ private:
     std::unique_ptr<DirectX::SpriteBatch>                                   m_sprites;
     std::unique_ptr<DirectX::SpriteFont>                                    m_font;
 
-#ifdef DXTK_AUDIO
+    // DirectXTK for Audio objects.
     std::unique_ptr<DirectX::AudioEngine>                                   m_audEngine;
     std::unique_ptr<DirectX::WaveBank>                                      m_waveBank;
     std::unique_ptr<DirectX::SoundEffect>                                   m_soundEffect;
     std::unique_ptr<DirectX::SoundEffectInstance>                           m_effect1;
     std::unique_ptr<DirectX::SoundEffectInstance>                           m_effect2;
-#endif
 
     Microsoft::WRL::ComPtr<ID3D11ShaderResourceView>                        m_texture1;
     Microsoft::WRL::ComPtr<ID3D11ShaderResourceView>                        m_texture2;
     Microsoft::WRL::ComPtr<ID3D11InputLayout>                               m_batchInputLayout;
 
-#ifdef DXTK_AUDIO
     uint32_t                                                                m_audioEvent;
     float                                                                   m_audioTimerAcc;
 
     bool                                                                    m_retryDefault;
-#endif
 
     DirectX::SimpleMath::Matrix                                             m_world;
     DirectX::SimpleMath::Matrix                                             m_view;

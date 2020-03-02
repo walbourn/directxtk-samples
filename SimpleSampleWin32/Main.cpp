@@ -5,9 +5,7 @@
 #include "pch.h"
 #include "Game.h"
 
-#ifdef DXTK_AUDIO
 #include <Dbt.h>
-#endif
 
 using namespace DirectX;
 
@@ -15,9 +13,7 @@ namespace
 {
     std::unique_ptr<Game> g_game;
 
-#ifdef DXTK_AUDIO
     HDEVNOTIFY g_hNewAudio = nullptr;
-#endif
 };
 
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
@@ -125,7 +121,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
     switch (message)
     {
-#ifdef DXTK_AUDIO
     case WM_CREATE:
         if (!g_hNewAudio)
         {
@@ -188,7 +183,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         break;
         }
         return 0;
-#endif
 
     case WM_PAINT:
         if (s_in_sizemove && game)

@@ -20,12 +20,10 @@ Game::Game() noexcept(false)
 
 Game::~Game()
 {
-#ifdef DXTK_AUDIO
     if (m_audEngine)
     {
         m_audEngine->Suspend();
     }
-#endif
 }
 
 // Initialize the Direct3D resources required to run.
@@ -46,7 +44,6 @@ void Game::Initialize(HWND window, int width, int height)
     m_deviceResources->CreateWindowSizeDependentResources();
     CreateWindowSizeDependentResources();
 
-#ifdef DXTK_AUDIO
     // Create DirectXTK for Audio objects
     AUDIO_ENGINE_FLAGS eflags = AudioEngine_Default;
 #ifdef _DEBUG
@@ -67,7 +64,6 @@ void Game::Initialize(HWND window, int width, int height)
 
     m_effect1->Play(true);
     m_effect2->Play();
-#endif
 }
 
 #pragma region Frame Update
@@ -79,7 +75,6 @@ void Game::Tick()
         Update(m_timer);
     });
 
-#ifdef DXTK_AUDIO
     // Only update audio engine once per frame
     if (!m_audEngine->IsCriticalError() && m_audEngine->Update())
     {
@@ -87,7 +82,6 @@ void Game::Tick()
         m_audioTimerAcc = 1.f;
         m_retryDefault = true;
     }
-#endif
 
     Render();
 }
@@ -105,7 +99,6 @@ void Game::Update(DX::StepTimer const& timer)
     m_batchEffect->SetView(m_view);
     m_batchEffect->SetWorld(Matrix::Identity);
 
-#ifdef DXTK_AUDIO
     m_audioTimerAcc -= (float)timer.GetElapsedSeconds();
     if (m_audioTimerAcc < 0)
     {
@@ -128,7 +121,6 @@ void Game::Update(DX::StepTimer const& timer)
                 m_audioEvent = 0;
         }
     }
-#endif
 
     auto pad = m_gamePad->GetState(0);
     if (pad.IsConnected())
@@ -277,18 +269,14 @@ void Game::OnDeactivated()
 
 void Game::OnSuspending()
 {
-#ifdef DXTK_AUDIO
     m_audEngine->Suspend();
-#endif
 }
 
 void Game::OnResuming()
 {
     m_timer.ResetElapsedTime();
 
-#ifdef DXTK_AUDIO
     m_audEngine->Resume();
-#endif
 }
 
 void Game::OnWindowMoved()
@@ -305,7 +293,6 @@ void Game::OnWindowSizeChanged(int width, int height)
     CreateWindowSizeDependentResources();
 }
 
-#ifdef DXTK_AUDIO
 void Game::NewAudioDevice()
 {
     if (m_audEngine && !m_audEngine->IsAudioDevicePresent())
@@ -315,7 +302,6 @@ void Game::NewAudioDevice()
         m_retryDefault = true;
     }
 }
-#endif
 
 // Properties
 void Game::GetDefaultSize(int& width, int& height) const
