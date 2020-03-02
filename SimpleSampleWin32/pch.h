@@ -5,11 +5,9 @@
 
 #pragma once
 
-#include <WinSDKVer.h>
-#ifndef _WIN32_WINNT
-#define _WIN32_WINNT 0x0600
-#endif
-#include <SDKDDKVer.h>
+#include <winsdkver.h>
+#define _WIN32_WINNT 0x0601
+#include <sdkddkver.h>
 
 // Use the C++ standard templated min/max
 #define NOMINMAX
@@ -29,11 +27,13 @@
 #define NOHELP
 
 #define WIN32_LEAN_AND_MEAN
-#include <windows.h>
+#include <Windows.h>
 
 #include <wrl/client.h>
 
 #include <d3d11_1.h>
+#include <dxgi1_6.h>
+
 #include <DirectXMath.h>
 #include <DirectXColors.h>
 
@@ -43,6 +43,10 @@
 #include <stdexcept>
 
 #include <stdio.h>
+
+#ifdef _DEBUG
+#include <dxgidebug.h>
+#endif
 
 #include "Audio.h"
 #include "CommonStates.h"

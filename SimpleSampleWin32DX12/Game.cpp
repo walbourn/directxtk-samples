@@ -138,7 +138,7 @@ void Game::Update(DX::StepTimer const& timer)
 
         if (pad.IsViewPressed())
         {
-            PostQuitMessage(0);
+            ExitGame();
         }
     }
     else
@@ -151,7 +151,7 @@ void Game::Update(DX::StepTimer const& timer)
 
     if (kb.Escape)
     {
-        PostQuitMessage(0);
+        ExitGame();
     }
 
     auto mouse = m_mouse->GetState();

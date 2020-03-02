@@ -17,13 +17,6 @@ namespace
 
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 
-// Indicates to hybrid graphics systems to prefer the discrete part by default
-extern "C"
-{
-    __declspec(dllexport) DWORD NvOptimusEnablement = 0x00000001;
-    __declspec(dllexport) int AmdPowerXpressRequestHighPerformance = 1;
-}
-
 // Entry point
 int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPWSTR lpCmdLine, _In_ int nCmdShow)
 {
@@ -42,17 +35,14 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, 
     // Register class and create window
     {
         // Register class
-        WNDCLASSEXW wcex;
+        WNDCLASSEXW wcex = {};
         wcex.cbSize = sizeof(WNDCLASSEXW);
         wcex.style = CS_HREDRAW | CS_VREDRAW;
         wcex.lpfnWndProc = WndProc;
-        wcex.cbClsExtra = 0;
-        wcex.cbWndExtra = 0;
         wcex.hInstance = hInstance;
         wcex.hIcon = LoadIconW(hInstance, L"IDI_ICON");
         wcex.hCursor = LoadCursorW(nullptr, IDC_ARROW);
         wcex.hbrBackground = (HBRUSH) (COLOR_WINDOW + 1);
-        wcex.lpszMenuName = nullptr;
         wcex.lpszClassName = L"DirectXTKSimpleSampleWindowClass";
         wcex.hIconSm = LoadIconW(wcex.hInstance, L"IDI_ICON");
         if (!RegisterClassExW(&wcex))
@@ -99,17 +89,12 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, 
 
     g_game.reset();
 
-    CoUninitialize();
-
     return (int) msg.wParam;
 }
 
 // Windows procedure
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
-    PAINTSTRUCT ps;
-    HDC hdc;
-
     static bool s_in_sizemove = false;
     static bool s_in_suspend = false;
     static bool s_minimized = false;
@@ -190,7 +175,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         }
         else
         {
-            hdc = BeginPaint(hWnd, &ps);
+            PAINTSTRUCT ps;
+            (void)BeginPaint(hWnd, &ps);
             EndPaint(hWnd, &ps);
         }
         break;
