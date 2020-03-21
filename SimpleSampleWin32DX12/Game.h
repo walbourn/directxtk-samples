@@ -17,6 +17,12 @@ public:
     Game() noexcept(false);
     ~Game();
 
+    Game(Game&&) = default;
+    Game& operator= (Game&&) = default;
+
+    Game(Game const&) = delete;
+    Game& operator= (Game const&) = delete;
+
     // Initialization and management
     void Initialize(HWND window, int width, int height);
 
@@ -37,7 +43,7 @@ public:
     void NewAudioDevice();
 
     // Properties
-    void GetDefaultSize( int& width, int& height ) const;
+    void GetDefaultSize( int& width, int& height ) const noexcept;
 
 private:
 
