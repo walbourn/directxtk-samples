@@ -62,7 +62,7 @@ namespace DX
         void SetTargetElapsedSeconds(double targetElapsed) noexcept { m_targetElapsedTicks = SecondsToTicks(targetElapsed); }
 
         // Integer format represents time using 10,000,000 ticks per second.
-        static const uint64_t TicksPerSecond = 10000000;
+        static constexpr uint64_t TicksPerSecond = 10000000;
 
         static constexpr double TicksToSeconds(uint64_t ticks) noexcept { return static_cast<double>(ticks) / TicksPerSecond; }
         static constexpr uint64_t SecondsToTicks(double seconds) noexcept { return static_cast<uint64_t>(seconds * TicksPerSecond); }
@@ -111,7 +111,7 @@ namespace DX
             timeDelta *= TicksPerSecond;
             timeDelta /= static_cast<uint64_t>(m_qpcFrequency.QuadPart);
 
-            uint32_t lastFrameCount = m_frameCount;
+            const uint32_t lastFrameCount = m_frameCount;
 
             if (m_isFixedTimeStep)
             {
