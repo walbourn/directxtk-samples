@@ -73,12 +73,21 @@ void SimpleSampleWindows10_XAMLMain::StopRenderLoop()
 // Updates the application state once per frame.
 void SimpleSampleWindows10_XAMLMain::Update() 
 {
+	ProcessInput();
+
 	// Update scene objects.
 	m_timer.Tick([&]()
 	{
 		// TODO: Replace this with your app's content update functions.
         m_sceneRenderer->Update(m_timer);
     });
+}
+
+// Process all input from the user before updating game state
+void SimpleSampleWindows10_XAMLMain::ProcessInput()
+{
+	// TODO: Add per frame input handling here.
+	m_sceneRenderer->TrackingUpdate(m_pointerLocationX);
 }
 
 // Renders the current frame according to the current application state.

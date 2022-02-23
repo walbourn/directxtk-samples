@@ -27,6 +27,10 @@ namespace SimpleSampleWindows10_XAML
         void ReleaseDeviceDependentResources();
         void Update(DX::StepTimer const& timer);
         void Render();
+        void StartTracking();
+        void TrackingUpdate(float positionX);
+        void StopTracking();
+        bool IsTracking() { return m_tracking; }
 
         // Signals a new audio device is available
         void NewAudioDevice();
@@ -61,6 +65,7 @@ namespace SimpleSampleWindows10_XAML
         float                                                                   m_audioTimerAcc;
 
         bool                                                                    m_retryDefault;
+        bool                                                                    m_tracking;
 
         DirectX::SimpleMath::Matrix                                             m_world;
         DirectX::SimpleMath::Matrix                                             m_view;

@@ -5,13 +5,8 @@
 //
 // http://go.microsoft.com/fwlink/?LinkId=248929
 //
-// THIS CODE AND INFORMATION IS PROVIDED "AS IS" WITHOUT WARRANTY OF
-// ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO
-// THE IMPLIED WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A
-// PARTICULAR PURPOSE.
-//
 // Copyright (c) Microsoft Corporation.
-// Licensed under the MIT License (MIT).
+// Licensed under the MIT License.
 //--------------------------------------------------------------------------------------
 
 #include "pch.h"
@@ -27,7 +22,9 @@ using namespace DirectX::SimpleMath;
 using namespace Windows::Foundation;
 
 DirectXTK3DSceneRenderer::DirectXTK3DSceneRenderer(const std::shared_ptr<DX::DeviceResources>& deviceResources) :
-    m_deviceResources(deviceResources)
+    m_deviceResources(deviceResources),
+    m_retryDefault(false),
+    m_tracking(false)
 {
     CreateDeviceDependentResources();
     CreateWindowSizeDependentResources();
@@ -76,7 +73,7 @@ void DirectXTK3DSceneRenderer::CreateAudioResources()
     // Create DirectXTK for Audio objects
     AUDIO_ENGINE_FLAGS eflags = AudioEngine_Default;
 #ifdef _DEBUG
-    eflags = eflags | AudioEngine_Debug;
+    eflags |= AudioEngine_Debug;
 #endif
 
     m_audEngine = std::make_unique<AudioEngine>(eflags);
@@ -96,12 +93,15 @@ void DirectXTK3DSceneRenderer::CreateAudioResources()
 
 void DirectXTK3DSceneRenderer::Update(DX::StepTimer const& timer)
 {
-    Vector3 eye(0.0f, 0.7f, 1.5f);
-    Vector3 at(0.0f, -0.1f, 0.0f);
+    const Vector3 eye(0.0f, 0.7f, 1.5f);
+    const Vector3 at(0.0f, -0.1f, 0.0f);
 
     m_view = Matrix::CreateLookAt(eye, at, Vector3::UnitY);
 
-    m_world = Matrix::CreateRotationY( float(timer.GetTotalSeconds() * XM_PIDIV4) );
+    if (!m_tracking)
+    {
+        m_world = Matrix::CreateRotationY(float(timer.GetTotalSeconds() * XM_PIDIV4));
+    }
 
     m_batchEffect->SetView(m_view);
     m_batchEffect->SetWorld(Matrix::Identity);
@@ -137,6 +137,27 @@ void DirectXTK3DSceneRenderer::Update(DX::StepTimer const& timer)
     }
 }
 
+void DirectXTK3DSceneRenderer::StartTracking()
+{
+    m_tracking = true;
+}
+
+// When tracking, the 3D cube can be rotated around its Y axis by tracking pointer position relative to the output screen width.
+void DirectXTK3DSceneRenderer::TrackingUpdate(float positionX)
+{
+    if (m_tracking)
+    {
+        float radians = XM_2PI * 2.0f * positionX / m_deviceResources->GetOutputSize().Width;
+        m_world = Matrix::CreateRotationY(radians);
+
+    }
+}
+
+void DirectXTK3DSceneRenderer::StopTracking()
+{
+    m_tracking = false;
+}
+
 void DirectXTK3DSceneRenderer::NewAudioDevice()
 {
     if (m_audEngine && !m_audEngine->IsAudioDevicePresent())
@@ -170,8 +191,8 @@ void XM_CALLCONV DirectXTK3DSceneRenderer::DrawGrid(FXMVECTOR xAxis, FXMVECTOR y
         XMVECTOR vScale = XMVectorScale(xAxis, fPercent);
         vScale = XMVectorAdd(vScale, origin);
 
-        VertexPositionColor v1(XMVectorSubtract(vScale, yAxis), color);
-        VertexPositionColor v2(XMVectorAdd(vScale, yAxis), color);
+        const VertexPositionColor v1(XMVectorSubtract(vScale, yAxis), color);
+        const VertexPositionColor v2(XMVectorAdd(vScale, yAxis), color);
         m_batch->DrawLine(v1, v2);
     }
 
@@ -182,8 +203,8 @@ void XM_CALLCONV DirectXTK3DSceneRenderer::DrawGrid(FXMVECTOR xAxis, FXMVECTOR y
         XMVECTOR vScale = XMVectorScale(yAxis, fPercent);
         vScale = XMVectorAdd(vScale, origin);
 
-        VertexPositionColor v1(XMVectorSubtract(vScale, xAxis), color);
-        VertexPositionColor v2(XMVectorAdd(vScale, xAxis), color);
+        const VertexPositionColor v1(XMVectorSubtract(vScale, xAxis), color);
+        const VertexPositionColor v2(XMVectorAdd(vScale, xAxis), color);
         m_batch->DrawLine(v1, v2);
     }
 
@@ -216,7 +237,7 @@ void DirectXTK3DSceneRenderer::Render()
 
     const XMVECTORF32 scale = { 0.01f, 0.01f, 0.01f };
     const XMVECTORF32 translate = { 3.f, -2.f, -4.f };
-    XMVECTOR rotate = Quaternion::CreateFromYawPitchRoll( XM_PI / 2.f, 0.f, -XM_PI / 2.f);
+    const XMVECTOR rotate = Quaternion::CreateFromYawPitchRoll( XM_PI / 2.f, 0.f, -XM_PI / 2.f);
     local = m_world * XMMatrixTransformation(g_XMZero, Quaternion::Identity, scale, g_XMZero, rotate, translate);
     m_model->Draw(context, *m_states, local, m_view, m_projection);
 }
@@ -238,19 +259,11 @@ void DirectXTK3DSceneRenderer::CreateDeviceDependentResources()
     m_batchEffect = std::make_unique<BasicEffect>(device);
     m_batchEffect->SetVertexColorEnabled(true);
 
-    {
-        void const* shaderByteCode;
-        size_t byteCodeLength;
-
-        m_batchEffect->GetVertexShaderBytecode(&shaderByteCode, &byteCodeLength);
-
-        DX::ThrowIfFailed(
-            device->CreateInputLayout(VertexPositionColor::InputElements,
-            VertexPositionColor::InputElementCount,
-            shaderByteCode, byteCodeLength,
+    DX::ThrowIfFailed(
+        CreateInputLayoutFromEffect<VertexPositionColor>(device,
+            m_batchEffect.get(),
             m_batchInputLayout.ReleaseAndGetAddressOf())
-            );
-    }
+    );
 
     m_font = std::make_unique<SpriteFont>(device, L"assets\\italic.spritefont");
 

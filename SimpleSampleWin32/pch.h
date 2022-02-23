@@ -38,11 +38,21 @@
 #include <DirectXColors.h>
 
 #include <algorithm>
+#include <atomic>
+#include <cassert>
+#include <cmath>
+#include <cstddef>
+#include <cstdint>
+#include <cstdio>
+#include <cstring>
+#include <cwchar>
 #include <exception>
+#include <iterator>
 #include <memory>
 #include <stdexcept>
-
-#include <stdio.h>
+#include <string>
+#include <system_error>
+#include <tuple>
 
 #ifdef _DEBUG
 #include <dxgidebug.h>
@@ -51,6 +61,7 @@
 #include "Audio.h"
 #include "CommonStates.h"
 #include "DDSTextureLoader.h"
+#include "DirectXHelpers.h"
 #include "Effects.h"
 #include "GamePad.h"
 #include "GeometricPrimitive.h"

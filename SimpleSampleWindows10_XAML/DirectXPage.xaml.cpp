@@ -68,6 +68,11 @@ DirectXPage::DirectXPage():
 			Windows::UI::Core::CoreInputDeviceTypes::Pen
 			);
 
+		// Register for pointer events, which will be raised on the background thread.
+		m_coreInput->PointerPressed += ref new TypedEventHandler<Object^, PointerEventArgs^>(this, &DirectXPage::OnPointerPressed);
+		m_coreInput->PointerMoved += ref new TypedEventHandler<Object^, PointerEventArgs^>(this, &DirectXPage::OnPointerMoved);
+		m_coreInput->PointerReleased += ref new TypedEventHandler<Object^, PointerEventArgs^>(this, &DirectXPage::OnPointerReleased);
+
 		// Begin processing input messages as they're delivered.
 		m_coreInput->Dispatcher->ProcessEvents(CoreProcessEventsOption::ProcessUntilQuit);
 	});
@@ -153,6 +158,27 @@ void DirectXPage::AppBarButton_Click(Object^ sender, RoutedEventArgs^ e)
 {
 	// Use the app bar if it is appropriate for your app. Design the app bar, 
 	// then fill in event handlers (like this one).
+}
+
+void DirectXPage::OnPointerPressed(Object^ sender, PointerEventArgs^ e)
+{
+	// When the pointer is pressed begin tracking the pointer movement.
+	m_main->StartTracking();
+}
+
+void DirectXPage::OnPointerMoved(Object^ sender, PointerEventArgs^ e)
+{
+	// Update the pointer tracking code.
+	if (m_main->IsTracking())
+	{
+		m_main->TrackingUpdate(e->CurrentPoint->Position.X);
+	}
+}
+
+void DirectXPage::OnPointerReleased(Object^ sender, PointerEventArgs^ e)
+{
+	// Stop tracking pointer movement when the pointer is released.
+	m_main->StopTracking();
 }
 
 void DirectXPage::OnCompositionScaleChanged(SwapChainPanel^ sender, Object^ args)

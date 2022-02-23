@@ -48,9 +48,33 @@ void App::OnLaunched(Windows::ApplicationModel::Activation::LaunchActivatedEvent
 	}
 #endif
 
+	auto rootFrame = dynamic_cast<Frame^>(Window::Current->Content);
+
+	// Do not repeat app initialization when the Window already has content,
+	// just ensure that the window is active
+	if (rootFrame == nullptr)
+	{
+		// Create a Frame to act as the navigation context and associate it with
+		// a SuspensionManager key
+		rootFrame = ref new Frame();
+
+		rootFrame->NavigationFailed += ref new Windows::UI::Xaml::Navigation::NavigationFailedEventHandler(this, &App::OnNavigationFailed);
+
+		// Place the frame in the current Window
+		Window::Current->Content = rootFrame;
+	}
+
+	if (rootFrame->Content == nullptr)
+	{
+		// When the navigation stack isn't restored navigate to the first page,
+		// configuring the new page by passing required information as a navigation
+		// parameter
+		rootFrame->Navigate(TypeName(DirectXPage::typeid), e->Arguments);
+	}
+
 	if (m_directXPage == nullptr)
 	{
-		m_directXPage = ref new DirectXPage();
+		m_directXPage = dynamic_cast<DirectXPage^>(rootFrame->Content);
 	}
 
 	if (e->PreviousExecutionState == ApplicationExecutionState::Terminated)
@@ -58,8 +82,7 @@ void App::OnLaunched(Windows::ApplicationModel::Activation::LaunchActivatedEvent
 		m_directXPage->LoadInternalState(ApplicationData::Current->LocalSettings->Values);
 	}
 
-	// Place the page in the current window and ensure that it is active.
-	Window::Current->Content = m_directXPage;
+	// Ensure the current window is active
 	Window::Current->Activate();
 }
 
@@ -89,4 +112,14 @@ void App::OnResuming(Object ^sender, Object ^args)
 	(void) args; // Unused parameter
 
 	m_directXPage->LoadInternalState(ApplicationData::Current->LocalSettings->Values);
+}
+
+/// <summary>
+/// Invoked when Navigation to a certain page fails
+/// </summary>
+/// <param name="sender">The Frame which failed navigation</param>
+/// <param name="e">Details about the navigation failure</param>
+void App::OnNavigationFailed(Platform::Object ^sender, Windows::UI::Xaml::Navigation::NavigationFailedEventArgs ^e)
+{
+	throw ref new FailureException("Failed to load Page " + e->SourcePageType.Name);
 }

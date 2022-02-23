@@ -51,6 +51,13 @@ namespace
         default:                                return fmt;
         }
     }
+
+    inline long ComputeIntersectionArea(
+        long ax1, long ay1, long ax2, long ay2,
+        long bx1, long by1, long bx2, long by2) noexcept
+    {
+        return std::max(0l, std::min(ax2, bx2) - std::max(ax1, bx1)) * std::max(0l, std::min(ay2, by2) - std::max(ay1, by1));
+    }
 }
 
 // Constructor for DeviceResources.
@@ -153,7 +160,7 @@ void DeviceResources::CreateDeviceResources()
     };
 
     UINT featLevelCount = 0;
-    for (; featLevelCount < _countof(s_featureLevels); ++featLevelCount)
+    for (; featLevelCount < static_cast<UINT>(std::size(s_featureLevels)); ++featLevelCount)
     {
         if (s_featureLevels[featLevelCount] < m_d3dMinFeatureLevel)
             break;
@@ -190,7 +197,7 @@ void DeviceResources::CreateDeviceResources()
 #if defined(NDEBUG)
     else
     {
-        throw std::exception("No Direct3D hardware device found");
+        throw std::runtime_error("No Direct3D hardware device found");
     }
 #else
     if (FAILED(hr))
@@ -236,7 +243,7 @@ void DeviceResources::CreateDeviceResources()
                 D3D11_MESSAGE_ID_SETPRIVATEDATA_CHANGINGPARAMS,
             };
             D3D11_INFO_QUEUE_FILTER filter = {};
-            filter.DenyList.NumIDs = _countof(hide);
+            filter.DenyList.NumIDs = static_cast<UINT>(std::size(hide));
             filter.DenyList.pIDList = hide;
             d3dInfoQueue->AddStorageFilterEntries(&filter);
         }
@@ -253,12 +260,11 @@ void DeviceResources::CreateWindowSizeDependentResources()
 {
     if (!m_window)
     {
-        throw std::exception("Call SetWindow with a valid Win32 window handle");
+        throw std::logic_error("Call SetWindow with a valid Win32 window handle");
     }
 
     // Clear the previous window size specific context.
-    ID3D11RenderTargetView* nullViews[] = {nullptr};
-    m_d3dContext->OMSetRenderTargets(_countof(nullViews), nullViews, nullptr);
+    m_d3dContext->OMSetRenderTargets(0, nullptr, nullptr);
     m_d3dRenderTargetView.Reset();
     m_d3dDepthStencilView.Reset();
     m_renderTarget.Reset();
@@ -495,8 +501,7 @@ void DeviceResources::Present()
 
         if (!m_dxgiFactory->IsCurrent())
         {
-            // Output information is cached on the DXGI Factory. If it is stale we need to create a new factory.
-            CreateFactory();
+            UpdateColorSpace();
         }
     }
 }
@@ -521,7 +526,7 @@ void DeviceResources::CreateFactory()
                 80 /* IDXGISwapChain::GetContainingOutput: The swapchain's adapter does not control the output on which the swapchain's window resides. */,
             };
             DXGI_INFO_QUEUE_FILTER filter = {};
-            filter.DenyList.NumIDs = _countof(hide);
+            filter.DenyList.NumIDs = static_cast<UINT>(std::size(hide));
             filter.DenyList.pIDList = hide;
             dxgiInfoQueue->AddStorageFilterEntries(DXGI_DEBUG_DXGI, &filter);
         }
@@ -541,7 +546,6 @@ void DeviceResources::GetHardwareAdapter(IDXGIAdapter1** ppAdapter)
 
     ComPtr<IDXGIAdapter1> adapter;
 
-#if defined(__dxgi1_6_h__) && defined(NTDDI_WIN10_RS4)
     ComPtr<IDXGIFactory6> factory6;
     HRESULT hr = m_dxgiFactory.As(&factory6);
     if (SUCCEEDED(hr))
@@ -571,7 +575,7 @@ void DeviceResources::GetHardwareAdapter(IDXGIAdapter1** ppAdapter)
             break;
         }
     }
-#endif
+
     if (!adapter)
     {
         for (UINT adapterIndex = 0;
@@ -605,18 +609,67 @@ void DeviceResources::GetHardwareAdapter(IDXGIAdapter1** ppAdapter)
 // Sets the color space for the swap chain in order to handle HDR output.
 void DeviceResources::UpdateColorSpace()
 {
+    if (!m_dxgiFactory)
+        return;
+
+    if (!m_dxgiFactory->IsCurrent())
+    {
+        // Output information is cached on the DXGI Factory. If it is stale we need to create a new factory.
+        CreateFactory();
+    }
+
     DXGI_COLOR_SPACE_TYPE colorSpace = DXGI_COLOR_SPACE_RGB_FULL_G22_NONE_P709;
 
     bool isDisplayHDR10 = false;
 
-#if defined(NTDDI_WIN10_RS2)
     if (m_swapChain)
     {
-        ComPtr<IDXGIOutput> output;
-        if (SUCCEEDED(m_swapChain->GetContainingOutput(output.GetAddressOf())))
+        // To detect HDR support, we will need to check the color space in the primary
+        // DXGI output associated with the app at this point in time
+        // (using window/display intersection).
+
+        // Get the retangle bounds of the app window.
+        RECT windowBounds;
+        if (!GetWindowRect(m_window, &windowBounds))
+            throw std::system_error(std::error_code(static_cast<int>(GetLastError()), std::system_category()), "GetWindowRect");
+
+        const long ax1 = windowBounds.left;
+        const long ay1 = windowBounds.top;
+        const long ax2 = windowBounds.right;
+        const long ay2 = windowBounds.bottom;
+
+        ComPtr<IDXGIOutput> bestOutput;
+        long bestIntersectArea = -1;
+
+        ComPtr<IDXGIAdapter> adapter;
+        for (UINT adapterIndex = 0;
+            SUCCEEDED(m_dxgiFactory->EnumAdapters(adapterIndex, adapter.ReleaseAndGetAddressOf()));
+            ++adapterIndex)
+        {
+            ComPtr<IDXGIOutput> output;
+            for (UINT outputIndex = 0;
+                SUCCEEDED(adapter->EnumOutputs(outputIndex, output.ReleaseAndGetAddressOf()));
+                ++outputIndex)
+            {
+                // Get the rectangle bounds of current output.
+                DXGI_OUTPUT_DESC desc;
+                ThrowIfFailed(output->GetDesc(&desc));
+                const auto& r = desc.DesktopCoordinates;
+
+                // Compute the intersection
+                const long intersectArea = ComputeIntersectionArea(ax1, ay1, ax2, ay2, r.left, r.top, r.right, r.bottom);
+                if (intersectArea > bestIntersectArea)
+                {
+                    bestOutput.Swap(output);
+                    bestIntersectArea = intersectArea;
+                }
+            }
+        }
+
+        if (bestOutput)
         {
             ComPtr<IDXGIOutput6> output6;
-            if (SUCCEEDED(output.As(&output6)))
+            if (SUCCEEDED(bestOutput.As(&output6)))
             {
                 DXGI_OUTPUT_DESC1 desc;
                 ThrowIfFailed(output6->GetDesc1(&desc));
@@ -629,7 +682,6 @@ void DeviceResources::UpdateColorSpace()
             }
         }
     }
-#endif
 
     if ((m_options & c_EnableHDR) && isDisplayHDR10)
     {
@@ -653,7 +705,7 @@ void DeviceResources::UpdateColorSpace()
     m_colorSpace = colorSpace;
 
     ComPtr<IDXGISwapChain3> swapChain3;
-    if (SUCCEEDED(m_swapChain.As(&swapChain3)))
+    if (m_swapChain && SUCCEEDED(m_swapChain.As(&swapChain3)))
     {
         UINT colorSpaceSupport = 0;
         if (SUCCEEDED(swapChain3->CheckColorSpaceSupport(colorSpace, &colorSpaceSupport))

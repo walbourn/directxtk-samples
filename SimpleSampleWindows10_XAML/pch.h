@@ -18,6 +18,7 @@
 #include "Audio.h"
 #include "CommonStates.h"
 #include "DDSTextureLoader.h"
+#include "DirectXHelpers.h"
 #include "Effects.h"
 #include "GeometricPrimitive.h"
 #include "Model.h"

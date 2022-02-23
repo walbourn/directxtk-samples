@@ -20,6 +20,24 @@ using namespace Windows::Graphics::Display;
 using namespace Windows::Devices::Enumeration;
 using namespace DirectX;
 
+#pragma warning(disable : 4061)
+
+void ExitGame() noexcept;
+void GetWindowBounds(_In_ IUnknown* window, _Out_ RECT* rect);
+
+namespace
+{
+    inline int ConvertDipsToPixels(float dips, float dpi) noexcept
+    {
+        return int(dips * dpi / 96.f + 0.5f);
+    }
+
+    inline float ConvertPixelsToDips(int pixels, float dpi) noexcept
+    {
+        return (float(pixels) * 96.f / dpi);
+    }
+}
+
 ref class ViewProvider sealed : public IFrameworkView
 {
 public:
@@ -67,7 +85,6 @@ public:
         window->SizeChanged +=
             ref new TypedEventHandler<CoreWindow^, WindowSizeChangedEventArgs^>(this, &ViewProvider::OnWindowSizeChanged);
 
-#if defined(NTDDI_WIN10_RS2) && (NTDDI_VERSION >= NTDDI_WIN10_RS2)
         try
         {
             window->ResizeStarted +=
@@ -80,7 +97,6 @@ public:
         {
             // Requires Windows 10 Creators Update (10.0.15063) or later
         }
-#endif
 
         window->VisibilityChanged +=
             ref new TypedEventHandler<CoreWindow^, VisibilityChangedEventArgs^>(this, &ViewProvider::OnVisibilityChanged);
@@ -117,8 +133,8 @@ public:
         m_nativeOrientation = currentDisplayInformation->NativeOrientation;
         m_currentOrientation = currentDisplayInformation->CurrentOrientation;
 
-        int outputWidth = ConvertDipsToPixels(m_logicalWidth);
-        int outputHeight = ConvertDipsToPixels(m_logicalHeight);
+        int outputWidth = ConvertDipsToPixels(m_logicalWidth, m_DPI);
+        int outputHeight = ConvertDipsToPixels(m_logicalHeight, m_DPI);
 
         DXGI_MODE_ROTATION rotation = ComputeDisplayRotation();
 
@@ -176,13 +192,13 @@ protected:
         ApplicationView::PreferredLaunchWindowingMode = ApplicationViewWindowingMode::PreferredLaunchViewSize;
         // TODO: Change to ApplicationViewWindowingMode::FullScreen to default to full screen
 
-        auto desiredSize = Size(ConvertPixelsToDips(w), ConvertPixelsToDips(h));
+        auto desiredSize = Size(ConvertPixelsToDips(w, m_DPI), ConvertPixelsToDips(h, m_DPI));
 
         ApplicationView::PreferredLaunchViewSize = desiredSize;
 
         auto view = ApplicationView::GetForCurrentView();
 
-        auto minSize = Size(ConvertPixelsToDips(320), ConvertPixelsToDips(200));
+        auto minSize = Size(ConvertPixelsToDips(320, m_DPI), ConvertPixelsToDips(200, m_DPI));
 
         view->SetPreferredMinSize(minSize);
 
@@ -221,7 +237,6 @@ protected:
         HandleWindowSizeChanged();
     }
 
-#if defined(NTDDI_WIN10_RS2) && (NTDDI_VERSION >= NTDDI_WIN10_RS2)
     void OnResizeStarted(CoreWindow^ sender, Platform::Object^ args)
     {
         m_in_sizemove = true;
@@ -233,7 +248,6 @@ protected:
 
         HandleWindowSizeChanged();
     }
-#endif
 
     void OnVisibilityChanged(CoreWindow^ sender, VisibilityChangedEventArgs^ args)
     {
@@ -297,6 +311,7 @@ protected:
     void OnDisplayContentsInvalidated(DisplayInformation^ sender, Object^ args)
     {
         m_game->ValidateDevice();
+        m_game->OnDisplayChange();
     }
 
     void OnAudioDeviceAdded(Windows::Devices::Enumeration::DeviceWatcher^ sender, Windows::Devices::Enumeration::DeviceInformation^ args)
@@ -323,16 +338,6 @@ private:
 
     Windows::Devices::Enumeration::DeviceWatcher^ m_audioWatcher;
 
-    inline int ConvertDipsToPixels(float dips) const
-    {
-        return int(dips * m_DPI / 96.f + 0.5f);
-    }
-
-    inline float ConvertPixelsToDips(int pixels) const
-    {
-        return (float(pixels) * 96.f / m_DPI);
-    }
-
     DXGI_MODE_ROTATION ComputeDisplayRotation() const
     {
         DXGI_MODE_ROTATION rotation = DXGI_MODE_ROTATION_UNSPECIFIED;
@@ -357,6 +362,9 @@ private:
             case DisplayOrientations::PortraitFlipped:
                 rotation = DXGI_MODE_ROTATION_ROTATE90;
                 break;
+
+            default:
+                break;
             }
             break;
 
@@ -378,7 +386,13 @@ private:
             case DisplayOrientations::PortraitFlipped:
                 rotation = DXGI_MODE_ROTATION_ROTATE180;
                 break;
+
+            default:
+                break;
             }
+            break;
+
+        default:
             break;
         }
 
@@ -387,8 +401,8 @@ private:
 
     void HandleWindowSizeChanged()
     {
-        int outputWidth = ConvertDipsToPixels(m_logicalWidth);
-        int outputHeight = ConvertDipsToPixels(m_logicalHeight);
+        int outputWidth = ConvertDipsToPixels(m_logicalWidth, m_DPI);
+        int outputHeight = ConvertDipsToPixels(m_logicalHeight, m_DPI);
 
         DXGI_MODE_ROTATION rotation = ComputeDisplayRotation();
 
@@ -417,7 +431,7 @@ int __cdecl main(Platform::Array<Platform::String^>^ /*argv*/)
 {
     if (!XMVerifyCPUSupport())
     {
-        throw std::exception("XMVerifyCPUSupport");
+        throw std::runtime_error("XMVerifyCPUSupport");
     }
 
     auto viewProviderFactory = ref new ViewProviderFactory();
@@ -430,4 +444,33 @@ int __cdecl main(Platform::Array<Platform::String^>^ /*argv*/)
 void ExitGame() noexcept
 {
     Windows::ApplicationModel::Core::CoreApplication::Exit();
+}
+
+
+// Window size helper
+_Use_decl_annotations_
+void GetWindowBounds(IUnknown* window, RECT* rect)
+{
+    if (!rect)
+        return;
+
+    *rect = {};
+
+    if (!window)
+        return;
+
+    auto b = reinterpret_cast<CoreWindow^>(window)->Bounds;
+
+    auto currentDisplayInformation = DisplayInformation::GetForCurrentView();
+    float dpi = currentDisplayInformation->LogicalDpi;
+
+    const int x = ConvertDipsToPixels(b.X, dpi);
+    const int y = ConvertDipsToPixels(b.Y, dpi);
+    const int w = ConvertDipsToPixels(b.Width, dpi);
+    const int h = ConvertDipsToPixels(b.Height, dpi);
+
+    rect->left = static_cast<long>(x);
+    rect->top = static_cast<long>(y);
+    rect->right = static_cast<long>(x + w);
+    rect->bottom = static_cast<long>(y + h);
 }

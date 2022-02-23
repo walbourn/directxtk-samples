@@ -40,7 +40,7 @@ void Game::Initialize(IUnknown* window, int width, int height, DXGI_MODE_ROTATIO
     // Create DirectXTK for Audio objects
     AUDIO_ENGINE_FLAGS eflags = AudioEngine_Default;
 #ifdef _DEBUG
-    eflags = eflags | AudioEngine_Debug;
+    eflags |= AudioEngine_Debug;
 #endif
 
     m_audEngine = std::make_unique<AudioEngine>(eflags);
@@ -83,8 +83,8 @@ void Game::Update(DX::StepTimer const& timer)
 {
     PIXBeginEvent(PIX_COLOR_DEFAULT, L"Update");
 
-    Vector3 eye(0.0f, 0.7f, 1.5f);
-    Vector3 at(0.0f, -0.1f, 0.0f);
+    const Vector3 eye(0.0f, 0.7f, 1.5f);
+    const Vector3 at(0.0f, -0.1f, 0.0f);
 
     m_view = Matrix::CreateLookAt(eye, at, Vector3::UnitY);
 
@@ -118,7 +118,7 @@ void Game::Update(DX::StepTimer const& timer)
         }
     }
 
-    auto pad = m_gamePad->GetState(0);
+    auto const pad = m_gamePad->GetState(0);
     if (pad.IsConnected())
     {
         m_gamePadButtons.Update(pad);
@@ -133,16 +133,13 @@ void Game::Update(DX::StepTimer const& timer)
         m_gamePadButtons.Reset();
     }
 
-    auto kb = m_keyboard->GetState();
+    auto const kb = m_keyboard->GetState();
     m_keyboardButtons.Update(kb);
 
     if (kb.Escape)
     {
         ExitGame();
     }
-
-    auto mouse = m_mouse->GetState();
-    mouse;
 
     PIXEndEvent();
 }
@@ -196,7 +193,7 @@ void Game::Render()
     PIXBeginEvent(commandList, PIX_COLOR_DEFAULT, L"Draw model");
     const XMVECTORF32 scale = { 0.01f, 0.01f, 0.01f };
     const XMVECTORF32 translate = { 3.f, -2.f, -4.f };
-    XMVECTOR rotate = Quaternion::CreateFromYawPitchRoll(XM_PI / 2.f, 0.f, -XM_PI / 2.f);
+    const XMVECTOR rotate = Quaternion::CreateFromYawPitchRoll(XM_PI / 2.f, 0.f, -XM_PI / 2.f);
     local = m_world * XMMatrixTransformation(g_XMZero, Quaternion::Identity, scale, g_XMZero, rotate, translate);
     Model::UpdateEffectMatrices(m_modelEffects, local, m_view, m_projection);
     heaps[0] = m_modelResources->Heap();
@@ -220,16 +217,16 @@ void Game::Clear()
     PIXBeginEvent(commandList, PIX_COLOR_DEFAULT, L"Clear");
 
     // Clear the views.
-    auto rtvDescriptor = m_deviceResources->GetRenderTargetView();
-    auto dsvDescriptor = m_deviceResources->GetDepthStencilView();
+    auto const rtvDescriptor = m_deviceResources->GetRenderTargetView();
+    auto const dsvDescriptor = m_deviceResources->GetDepthStencilView();
 
     commandList->OMSetRenderTargets(1, &rtvDescriptor, FALSE, &dsvDescriptor);
     commandList->ClearRenderTargetView(rtvDescriptor, Colors::CornflowerBlue, 0, nullptr);
     commandList->ClearDepthStencilView(dsvDescriptor, D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
 
     // Set the viewport and scissor rect.
-    auto viewport = m_deviceResources->GetScreenViewport();
-    auto scissorRect = m_deviceResources->GetScissorRect();
+    auto const viewport = m_deviceResources->GetScreenViewport();
+    auto const scissorRect = m_deviceResources->GetScissorRect();
     commandList->RSSetViewports(1, &viewport);
     commandList->RSSetScissorRects(1, &scissorRect);
 
@@ -255,8 +252,8 @@ void XM_CALLCONV Game::DrawGrid(FXMVECTOR xAxis, FXMVECTOR yAxis, FXMVECTOR orig
         XMVECTOR vScale = XMVectorScale(xAxis, fPercent);
         vScale = XMVectorAdd(vScale, origin);
 
-        VertexPositionColor v1(XMVectorSubtract(vScale, yAxis), color);
-        VertexPositionColor v2(XMVectorAdd(vScale, yAxis), color);
+        const VertexPositionColor v1(XMVectorSubtract(vScale, yAxis), color);
+        const VertexPositionColor v2(XMVectorAdd(vScale, yAxis), color);
         m_batch->DrawLine(v1, v2);
     }
 
@@ -267,8 +264,8 @@ void XM_CALLCONV Game::DrawGrid(FXMVECTOR xAxis, FXMVECTOR yAxis, FXMVECTOR orig
         XMVECTOR vScale = XMVectorScale(yAxis, fPercent);
         vScale = XMVectorAdd(vScale, origin);
 
-        VertexPositionColor v1(XMVectorSubtract(vScale, xAxis), color);
-        VertexPositionColor v2(XMVectorAdd(vScale, xAxis), color);
+        const VertexPositionColor v1(XMVectorSubtract(vScale, xAxis), color);
+        const VertexPositionColor v2(XMVectorAdd(vScale, xAxis), color);
         m_batch->DrawLine(v1, v2);
     }
 
@@ -299,6 +296,11 @@ void Game::OnResuming()
     m_gamePadButtons.Reset();
     m_keyboardButtons.Reset();
     m_audEngine->Resume();
+}
+
+void Game::OnDisplayChange()
+{
+    m_deviceResources->UpdateColorSpace();
 }
 
 void Game::OnWindowSizeChanged(int width, int height, DXGI_MODE_ROTATION rotation)
@@ -371,7 +373,8 @@ void Game::CreateDeviceDependentResources()
 
         CreateShaderResourceView(device, m_texture2.Get(), m_resourceDescriptors->GetCpuHandle(Descriptors::WindowsLogo));
 
-        RenderTargetState rtState(m_deviceResources->GetBackBufferFormat(), m_deviceResources->GetDepthBufferFormat());
+        const RenderTargetState rtState(m_deviceResources->GetBackBufferFormat(),
+            m_deviceResources->GetDepthBufferFormat());
 
         {
             EffectPipelineStateDescription pd(
@@ -436,8 +439,8 @@ void Game::CreateDeviceDependentResources()
 // Allocate all memory resources that change on a window SizeChanged event.
 void Game::CreateWindowSizeDependentResources()
 {
-    auto size = m_deviceResources->GetOutputSize();
-    float aspectRatio = float(size.right) / float(size.bottom);
+    auto const size = m_deviceResources->GetOutputSize();
+    const float aspectRatio = float(size.right) / float(size.bottom);
     float fovAngleY = 70.0f * XM_PI / 180.0f;
 
     // This is a simple example of change that can be made when the app is in
@@ -468,7 +471,7 @@ void Game::CreateWindowSizeDependentResources()
     m_lineEffect->SetProjection(m_projection);
     m_shapeEffect->SetProjection(m_projection);
 
-    auto viewport = m_deviceResources->GetScreenViewport();
+    auto const viewport = m_deviceResources->GetScreenViewport();
     m_sprites->SetViewport(viewport);
 
     m_sprites->SetRotation(m_deviceResources->GetRotation());

@@ -13,6 +13,10 @@ namespace SimpleSampleWindows10_XAML
 		SimpleSampleWindows10_XAMLMain(const std::shared_ptr<DX::DeviceResources>& deviceResources);
 		~SimpleSampleWindows10_XAMLMain();
 		void CreateWindowSizeDependentResources();
+		void StartTracking() { m_sceneRenderer->StartTracking(); }
+		void TrackingUpdate(float positionX) { m_pointerLocationX = positionX; }
+		void StopTracking() { m_sceneRenderer->StopTracking(); }
+		bool IsTracking() { return m_sceneRenderer->IsTracking(); }
         void StartRenderLoop();
 		void StopRenderLoop();
 		Concurrency::critical_section& GetCriticalSection() { return m_criticalSection; }
@@ -22,6 +26,7 @@ namespace SimpleSampleWindows10_XAML
 		virtual void OnDeviceRestored();
 
 	private:
+		void ProcessInput();
 		void Update();
 		bool Render();
 
