@@ -12,6 +12,13 @@
 
 #if defined( __cplusplus )
 
+#ifdef __clang__
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wfloat-equal"
+#pragma clang diagnostic ignored "-Wunknown-warning-option"
+#pragma clang diagnostic ignored "-Wunsafe-buffer-usage"
+#endif
+
 struct CD3DX12_DEFAULT {};
 extern const DECLSPEC_SELECTANY CD3DX12_DEFAULT D3D12_DEFAULT;
 
@@ -754,7 +761,7 @@ struct CD3DX12_HEAP_PROPERTIES : public D3D12_HEAP_PROPERTIES
     bool IsCPUAccessible() const noexcept
     {
         return Type == D3D12_HEAP_TYPE_UPLOAD || Type == D3D12_HEAP_TYPE_READBACK
-#if defined(D3D12_SDK_VERSION) && (D3D12_SDK_VERSION >= 609)
+#if 0
             || Type == D3D12_HEAP_TYPE_GPU_UPLOAD
 #endif
             || (Type == D3D12_HEAP_TYPE_CUSTOM &&
@@ -6456,6 +6463,10 @@ inline HRESULT CD3DX12FeatureSupport::QueryProtectedResourceSessionTypes(UINT No
 #undef D3DX12_COM_PTR
 #undef D3DX12_COM_PTR_GET
 #undef D3DX12_COM_PTR_ADDRESSOF
+
+#ifdef __clang__
+#pragma clang diagnostic pop
+#endif
 
 #endif // defined( __cplusplus )
 
