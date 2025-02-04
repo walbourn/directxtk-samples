@@ -118,7 +118,7 @@ void Game::Update(DX::StepTimer const& timer)
         }
     }
 
-    auto const pad = m_gamePad->GetState(0);
+    const auto pad = m_gamePad->GetState(0);
     if (pad.IsConnected())
     {
         m_gamePadButtons.Update(pad);
@@ -133,7 +133,7 @@ void Game::Update(DX::StepTimer const& timer)
         m_gamePadButtons.Reset();
     }
 
-    auto const kb = m_keyboard->GetState();
+    const auto kb = m_keyboard->GetState();
     m_keyboardButtons.Update(kb);
 
     if (kb.Escape)
@@ -217,16 +217,16 @@ void Game::Clear()
     PIXBeginEvent(commandList, PIX_COLOR_DEFAULT, L"Clear");
 
     // Clear the views.
-    auto const rtvDescriptor = m_deviceResources->GetRenderTargetView();
-    auto const dsvDescriptor = m_deviceResources->GetDepthStencilView();
+    const auto rtvDescriptor = m_deviceResources->GetRenderTargetView();
+    const auto dsvDescriptor = m_deviceResources->GetDepthStencilView();
 
     commandList->OMSetRenderTargets(1, &rtvDescriptor, FALSE, &dsvDescriptor);
     commandList->ClearRenderTargetView(rtvDescriptor, Colors::CornflowerBlue, 0, nullptr);
     commandList->ClearDepthStencilView(dsvDescriptor, D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
 
     // Set the viewport and scissor rect.
-    auto const viewport = m_deviceResources->GetScreenViewport();
-    auto const scissorRect = m_deviceResources->GetScissorRect();
+    const auto viewport = m_deviceResources->GetScreenViewport();
+    const auto scissorRect = m_deviceResources->GetScissorRect();
     commandList->RSSetViewports(1, &viewport);
     commandList->RSSetScissorRects(1, &scissorRect);
 
@@ -439,7 +439,7 @@ void Game::CreateDeviceDependentResources()
 // Allocate all memory resources that change on a window SizeChanged event.
 void Game::CreateWindowSizeDependentResources()
 {
-    auto const size = m_deviceResources->GetOutputSize();
+    const auto size = m_deviceResources->GetOutputSize();
     const float aspectRatio = float(size.right) / float(size.bottom);
     float fovAngleY = 70.0f * XM_PI / 180.0f;
 
@@ -471,7 +471,7 @@ void Game::CreateWindowSizeDependentResources()
     m_lineEffect->SetProjection(m_projection);
     m_shapeEffect->SetProjection(m_projection);
 
-    auto const viewport = m_deviceResources->GetScreenViewport();
+    const auto viewport = m_deviceResources->GetScreenViewport();
     m_sprites->SetViewport(viewport);
 
     m_sprites->SetRotation(m_deviceResources->GetRotation());

@@ -122,7 +122,7 @@ void Game::Update(DX::StepTimer const& timer)
         }
     }
 
-    auto const pad = m_gamePad->GetState(0);
+    const auto pad = m_gamePad->GetState(0);
     if (pad.IsConnected())
     {
         if (pad.IsViewPressed())
@@ -131,7 +131,7 @@ void Game::Update(DX::StepTimer const& timer)
         }
     }
 
-    auto const kb = m_keyboard->GetState();
+    const auto kb = m_keyboard->GetState();
     if (kb.Escape)
     {
         ExitGame();
@@ -203,7 +203,7 @@ void Game::Clear()
     context->OMSetRenderTargets(1, &renderTarget, depthStencil);
 
     // Set the viewport.
-    auto const viewport = m_deviceResources->GetScreenViewport();
+    const auto viewport = m_deviceResources->GetScreenViewport();
     context->RSSetViewports(1, &viewport);
 
     m_deviceResources->PIXEndEvent();
@@ -281,7 +281,7 @@ void Game::OnResuming()
 
 void Game::OnWindowMoved()
 {
-    auto const r = m_deviceResources->GetOutputSize();
+    const auto r = m_deviceResources->GetOutputSize();
     m_deviceResources->WindowSizeChanged(r.right, r.bottom);
 }
 
@@ -360,7 +360,7 @@ void Game::CreateDeviceDependentResources()
 // Allocate all memory resources that change on a window SizeChanged event.
 void Game::CreateWindowSizeDependentResources()
 {
-    auto const size = m_deviceResources->GetOutputSize();
+    const auto size = m_deviceResources->GetOutputSize();
     const float aspectRatio = float(size.right) / float(size.bottom);
     float fovAngleY = 70.0f * XM_PI / 180.0f;
 
