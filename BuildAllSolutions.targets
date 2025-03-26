@@ -5,7 +5,7 @@
     <FullSolutionList Include="$(MSBuildThisProjectDirectory)**\*.sln" />
   </ItemGroup>
 
-  <Target Name="BuildAll"
+  <Target Name="_BuildAll"
     Outputs="%(FullSolutionList.Identity)">
 
     <PropertyGroup>
@@ -17,6 +17,12 @@
 
     <MSBuild Projects="$(_OneSln)"
       Properties="Configuration=Release;Platform=x64" />
-
   </Target>
+
+  <Target Name="_LogVersion">
+    <Exec Command="cl.exe -Bv" EchoOff="true" IgnoreExitCode="true" IgnoreStandardErrorWarningFormat="true" />
+  </Target>
+
+  <Target Name="BuildAll" DependsOnTargets="_LogVersion;_BuildAll" />
+
 </Project>
