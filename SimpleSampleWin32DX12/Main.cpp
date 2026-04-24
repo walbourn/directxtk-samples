@@ -150,40 +150,40 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         switch (wParam)
         {
         case DBT_DEVICEARRIVAL:
-        {
-            auto pDev = reinterpret_cast<PDEV_BROADCAST_HDR>(lParam);
-            if (pDev)
             {
-                if (pDev->dbch_devicetype == DBT_DEVTYP_DEVICEINTERFACE)
+                auto pDev = reinterpret_cast<PDEV_BROADCAST_HDR>(lParam);
+                if (pDev)
                 {
-                    auto pInter = reinterpret_cast<PDEV_BROADCAST_DEVICEINTERFACE>(pDev);
-                    if (pInter->dbcc_classguid == KSCATEGORY_AUDIO)
+                    if (pDev->dbch_devicetype == DBT_DEVTYP_DEVICEINTERFACE)
                     {
-                        if (g_game)
-                            g_game->NewAudioDevice();
+                        auto pInter = reinterpret_cast<PDEV_BROADCAST_DEVICEINTERFACE>(pDev);
+                        if (pInter->dbcc_classguid == KSCATEGORY_AUDIO)
+                        {
+                            if (g_game)
+                                g_game->NewAudioDevice();
+                        }
                     }
                 }
             }
-        }
-        break;
+            break;
 
         case DBT_DEVICEREMOVECOMPLETE:
-        {
-            auto pDev = reinterpret_cast<PDEV_BROADCAST_HDR>(lParam);
-            if (pDev)
             {
-                if (pDev->dbch_devicetype == DBT_DEVTYP_DEVICEINTERFACE)
+                auto pDev = reinterpret_cast<PDEV_BROADCAST_HDR>(lParam);
+                if (pDev)
                 {
-                    auto pInter = reinterpret_cast<PDEV_BROADCAST_DEVICEINTERFACE>(pDev);
-                    if (pInter->dbcc_classguid == KSCATEGORY_AUDIO)
+                    if (pDev->dbch_devicetype == DBT_DEVTYP_DEVICEINTERFACE)
                     {
-                        if (g_game)
-                            g_game->NewAudioDevice();
+                        auto pInter = reinterpret_cast<PDEV_BROADCAST_DEVICEINTERFACE>(pDev);
+                        if (pInter->dbcc_classguid == KSCATEGORY_AUDIO)
+                        {
+                            if (g_game)
+                                g_game->NewAudioDevice();
+                        }
                     }
                 }
             }
-        }
-        break;
+            break;
         }
         return 0;
 

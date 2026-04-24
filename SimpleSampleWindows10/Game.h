@@ -44,7 +44,7 @@ public:
     void NewAudioDevice();
 
     // Properties
-    void GetDefaultSize( int& width, int& height ) const noexcept;
+    void GetDefaultSize(int& width, int& height) const noexcept;
 
 private:
 

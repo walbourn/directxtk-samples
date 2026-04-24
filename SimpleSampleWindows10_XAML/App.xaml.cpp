@@ -1,4 +1,4 @@
-﻿//
+//
 // App.xaml.cpp
 // Implementation of the App class.
 //
@@ -28,9 +28,9 @@ using namespace Windows::UI::Xaml::Navigation;
 /// </summary>
 App::App()
 {
-	InitializeComponent();
-	Suspending += ref new SuspendingEventHandler(this, &App::OnSuspending);
-	Resuming += ref new EventHandler<Object^>(this, &App::OnResuming);
+    InitializeComponent();
+    Suspending += ref new SuspendingEventHandler(this, &App::OnSuspending);
+    Resuming += ref new EventHandler<Object^>(this, &App::OnResuming);
 }
 
 /// <summary>
@@ -42,48 +42,48 @@ App::App()
 void App::OnLaunched(Windows::ApplicationModel::Activation::LaunchActivatedEventArgs^ e)
 {
 #if _DEBUG
-	if (IsDebuggerPresent())
-	{
-		DebugSettings->EnableFrameRateCounter = true;
-	}
+    if (IsDebuggerPresent())
+    {
+        DebugSettings->EnableFrameRateCounter = true;
+    }
 #endif
 
-	auto rootFrame = dynamic_cast<Frame^>(Window::Current->Content);
+    auto rootFrame = dynamic_cast<Frame^>(Window::Current->Content);
 
-	// Do not repeat app initialization when the Window already has content,
-	// just ensure that the window is active
-	if (rootFrame == nullptr)
-	{
-		// Create a Frame to act as the navigation context and associate it with
-		// a SuspensionManager key
-		rootFrame = ref new Frame();
+    // Do not repeat app initialization when the Window already has content,
+    // just ensure that the window is active
+    if (rootFrame == nullptr)
+    {
+        // Create a Frame to act as the navigation context and associate it with
+        // a SuspensionManager key
+        rootFrame = ref new Frame();
 
-		rootFrame->NavigationFailed += ref new Windows::UI::Xaml::Navigation::NavigationFailedEventHandler(this, &App::OnNavigationFailed);
+        rootFrame->NavigationFailed += ref new Windows::UI::Xaml::Navigation::NavigationFailedEventHandler(this, &App::OnNavigationFailed);
 
-		// Place the frame in the current Window
-		Window::Current->Content = rootFrame;
-	}
+        // Place the frame in the current Window
+        Window::Current->Content = rootFrame;
+    }
 
-	if (rootFrame->Content == nullptr)
-	{
-		// When the navigation stack isn't restored navigate to the first page,
-		// configuring the new page by passing required information as a navigation
-		// parameter
-		rootFrame->Navigate(TypeName(DirectXPage::typeid), e->Arguments);
-	}
+    if (rootFrame->Content == nullptr)
+    {
+        // When the navigation stack isn't restored navigate to the first page,
+        // configuring the new page by passing required information as a navigation
+        // parameter
+        rootFrame->Navigate(TypeName(DirectXPage::typeid), e->Arguments);
+    }
 
-	if (m_directXPage == nullptr)
-	{
-		m_directXPage = dynamic_cast<DirectXPage^>(rootFrame->Content);
-	}
+    if (m_directXPage == nullptr)
+    {
+        m_directXPage = dynamic_cast<DirectXPage^>(rootFrame->Content);
+    }
 
-	if (e->PreviousExecutionState == ApplicationExecutionState::Terminated)
-	{
-		m_directXPage->LoadInternalState(ApplicationData::Current->LocalSettings->Values);
-	}
+    if (e->PreviousExecutionState == ApplicationExecutionState::Terminated)
+    {
+        m_directXPage->LoadInternalState(ApplicationData::Current->LocalSettings->Values);
+    }
 
-	// Ensure the current window is active
-	Window::Current->Activate();
+    // Ensure the current window is active
+    Window::Current->Activate();
 }
 
 /// <summary>
@@ -95,10 +95,10 @@ void App::OnLaunched(Windows::ApplicationModel::Activation::LaunchActivatedEvent
 /// <param name="e">Details about the suspend request.</param>
 void App::OnSuspending(Object^ sender, SuspendingEventArgs^ e)
 {
-	(void) sender;	// Unused parameter
-	(void) e;	// Unused parameter
+    (void)sender;	// Unused parameter
+    (void)e;	// Unused parameter
 
-	m_directXPage->SaveInternalState(ApplicationData::Current->LocalSettings->Values);
+    m_directXPage->SaveInternalState(ApplicationData::Current->LocalSettings->Values);
 }
 
 /// <summary>
@@ -108,10 +108,10 @@ void App::OnSuspending(Object^ sender, SuspendingEventArgs^ e)
 /// <param name="args">Details about the resume request.</param>
 void App::OnResuming(Object ^sender, Object ^args)
 {
-	(void) sender; // Unused parameter
-	(void) args; // Unused parameter
+    (void)sender; // Unused parameter
+    (void)args; // Unused parameter
 
-	m_directXPage->LoadInternalState(ApplicationData::Current->LocalSettings->Values);
+    m_directXPage->LoadInternalState(ApplicationData::Current->LocalSettings->Values);
 }
 
 /// <summary>
@@ -121,5 +121,5 @@ void App::OnResuming(Object ^sender, Object ^args)
 /// <param name="e">Details about the navigation failure</param>
 void App::OnNavigationFailed(Platform::Object ^sender, Windows::UI::Xaml::Navigation::NavigationFailedEventArgs ^e)
 {
-	throw ref new FailureException("Failed to load Page " + e->SourcePageType.Name);
+    throw ref new FailureException("Failed to load Page " + e->SourcePageType.Name);
 }
