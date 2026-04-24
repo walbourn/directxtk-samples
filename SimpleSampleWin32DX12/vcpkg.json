@@ -1,0 +1,13 @@
+{
+  "$schema": "https://raw.githubusercontent.com/microsoft/vcpkg-tool/main/docs/vcpkg.schema.json",
+  "dependencies": [
+    "directxmath",
+    {
+      "name": "directxtk12",
+      "default-features": false,
+      "features": [
+        "xaudio2-9"
+      ]
+    }
+  ]
+}

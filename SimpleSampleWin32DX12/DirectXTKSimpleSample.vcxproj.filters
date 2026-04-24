@@ -62,7 +62,8 @@
     <None Include="tiny.sdkmesh">
       <Filter>Assets</Filter>
     </None>
-    <None Include="packages.config" />
+    <None Include="vcpkg.json" />
+    <None Include="vcpkg-configuration.json" />
   </ItemGroup>
   <ItemGroup>
     <Media Include="musicmono_adpcm.wav">

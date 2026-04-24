@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+  <Import Condition="Exists('$(VcpkgRoot)scripts\buildsystems\msbuild\vcpkg.targets')"
+          Project="$(VcpkgRoot)scripts\buildsystems\msbuild\vcpkg.targets" />
+
+  <Target Name="EnsureVCPKG" BeforeTargets="_CheckForInvalidConfigurationAndPlatform">
+    <PropertyGroup>
+      <ErrorText>This project requires the VCPKG integration support in Visual Studio. Add the Microsoft.VisualStudio.Component.Vcpkg component to your install.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('$(VcpkgRoot)')" Text="$(ErrorText)" />
+  </Target>
+
+</Project>
