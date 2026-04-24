@@ -90,7 +90,8 @@
     <None Include="Assets\tiny.sdkmesh">
       <Filter>Assets</Filter>
     </None>
-    <None Include="packages.config" />
+    <None Include="vcpkg.json" />
+    <None Include="vcpkg-configuration.json" />
   </ItemGroup>
   <ItemGroup>
     <Page Include="DirectXPage.xaml" />

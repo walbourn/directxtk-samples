@@ -60,21 +60,21 @@
 #include <dxgidebug.h>
 #endif
 
-#include "Audio.h"
-#include "CommonStates.h"
-#include "DDSTextureLoader.h"
-#include "DirectXHelpers.h"
-#include "Effects.h"
-#include "GamePad.h"
-#include "GeometricPrimitive.h"
-#include "Keyboard.h"
-#include "Model.h"
-#include "Mouse.h"
-#include "PrimitiveBatch.h"
-#include "SimpleMath.h"
-#include "SpriteBatch.h"
-#include "SpriteFont.h"
-#include "VertexTypes.h"
+#include "directxtk/Audio.h"
+#include "directxtk/CommonStates.h"
+#include "directxtk/DDSTextureLoader.h"
+#include "directxtk/DirectXHelpers.h"
+#include "directxtk/Effects.h"
+#include "directxtk/GamePad.h"
+#include "directxtk/GeometricPrimitive.h"
+#include "directxtk/Keyboard.h"
+#include "directxtk/Model.h"
+#include "directxtk/Mouse.h"
+#include "directxtk/PrimitiveBatch.h"
+#include "directxtk/SimpleMath.h"
+#include "directxtk/SpriteBatch.h"
+#include "directxtk/SpriteFont.h"
+#include "directxtk/VertexTypes.h"
 
 namespace DX
 {
