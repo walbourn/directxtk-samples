@@ -23,7 +23,6 @@ jobs:
       fail-fast: false
 
       matrix:
-        vs: [2022]
         platform: [x86, x64, ARM64]
 
     steps:
