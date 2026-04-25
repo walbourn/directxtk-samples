@@ -1,0 +1,52 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+
+name: "CodeQL"
+
+on:
+  push:
+    branches: "main"
+  pull_request:
+    branches: "main"
+    paths-ignore:
+      - '*.md'
+      - LICENSE
+  schedule:
+    - cron: '31 2 * * 5'
+
+permissions:
+  contents: read
+
+jobs:
+  analyze:
+    name: Analyze (C++))
+    runs-on: windows-latest
+    timeout-minutes: 360
+    permissions:
+      actions: read  # for github/codeql-action/init to get workflow details
+      contents: read  # for actions/checkout to fetch code
+      security-events: write  # for github/codeql-action/autobuild to send a status report
+      packages: read
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+
+      - name: Add MSBuild to PATH
+        uses: microsoft/setup-msbuild@6fb02220983dee41ce7ae257b6f4d8f9bf5ed4ce # v2.0.0
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@5d4e8d1aca955e8d8589aabd499c5cae939e33c7 # v3.29.5
+        with:
+          languages: c-cpp
+          build-mode: manual
+
+      - name: 'Build'
+        run: >
+          msbuild /p:Configuration=Release /p:Platform=x64
+          BuildAllSolutions.targets
+
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@5d4e8d1aca955e8d8589aabd499c5cae939e33c7 # v3.29.5
+        with:
+          category: "/language:c-cpp"
