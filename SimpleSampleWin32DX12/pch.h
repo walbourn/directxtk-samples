@@ -93,7 +93,7 @@
 #include "directxtk12/RenderTargetState.h"
 #include "directxtk12/SimpleMath.h"
 #include "directxtk12/SpriteBatch.h"
-#include "directxtk12/SpriteFont.h" 
+#include "directxtk12/SpriteFont.h"
 #include "directxtk12/VertexTypes.h"
 
 namespace DX
