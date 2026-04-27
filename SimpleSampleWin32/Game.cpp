@@ -71,11 +71,11 @@ void Game::Initialize(HWND window, int width, int height)
 void Game::Tick()
 {
     m_timer.Tick([&]()
-    {
-        Update(m_timer);
-    });
+        {
+            Update(m_timer);
+        });
 
-    // Only update audio engine once per frame
+        // Only update audio engine once per frame
     if (!m_audEngine->IsCriticalError() && m_audEngine->Update())
     {
         // Setup a retry in 1 second
@@ -260,12 +260,10 @@ void XM_CALLCONV Game::DrawGrid(FXMVECTOR xAxis, FXMVECTOR yAxis, FXMVECTOR orig
 #pragma region Message Handlers
 // Message handlers
 void Game::OnActivated()
-{
-}
+{}
 
 void Game::OnDeactivated()
-{
-}
+{}
 
 void Game::OnSuspending()
 {

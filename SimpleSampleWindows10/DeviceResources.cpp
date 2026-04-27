@@ -38,7 +38,7 @@ namespace
             nullptr,                    // No need to keep the D3D device reference.
             nullptr,                    // No need to know the feature level.
             nullptr                     // No need to keep the D3D device context reference.
-            );
+        );
 
         return SUCCEEDED(hr);
     }
@@ -72,31 +72,31 @@ namespace ScreenRotation
         0.0f, 1.0f, 0.0f, 0.0f,
         0.0f, 0.0f, 1.0f, 0.0f,
         0.0f, 0.0f, 0.0f, 1.0f
-        );
+    );
 
-    // 90-degree Z-rotation
+// 90-degree Z-rotation
     static const XMFLOAT4X4 Rotation90(
         0.0f, 1.0f, 0.0f, 0.0f,
         -1.0f, 0.0f, 0.0f, 0.0f,
         0.0f, 0.0f, 1.0f, 0.0f,
         0.0f, 0.0f, 0.0f, 1.0f
-        );
+    );
 
-    // 180-degree Z-rotation
+// 180-degree Z-rotation
     static const XMFLOAT4X4 Rotation180(
         -1.0f, 0.0f, 0.0f, 0.0f,
         0.0f, -1.0f, 0.0f, 0.0f,
         0.0f, 0.0f, 1.0f, 0.0f,
         0.0f, 0.0f, 0.0f, 1.0f
-        );
+    );
 
-    // 270-degree Z-rotation
+// 270-degree Z-rotation
     static const XMFLOAT4X4 Rotation270(
         0.0f, -1.0f, 0.0f, 0.0f,
         1.0f, 0.0f, 0.0f, 0.0f,
         0.0f, 0.0f, 1.0f, 0.0f,
         0.0f, 0.0f, 0.0f, 1.0f
-        );
+    );
 }
 
 // Constructor for DeviceResources.
@@ -106,22 +106,21 @@ DeviceResources::DeviceResources(
     UINT backBufferCount,
     D3D_FEATURE_LEVEL minFeatureLevel,
     unsigned int flags) noexcept :
-        m_screenViewport{},
-        m_backBufferFormat(backBufferFormat),
-        m_depthBufferFormat(depthBufferFormat),
-        m_backBufferCount(backBufferCount),
-        m_d3dMinFeatureLevel(minFeatureLevel),
-        m_window(nullptr),
-        m_d3dFeatureLevel(D3D_FEATURE_LEVEL_9_1),
-        m_rotation(DXGI_MODE_ROTATION_IDENTITY),
-        m_dxgiFactoryFlags(0),
-        m_outputSize{0, 0, 1, 1},
-        m_orientationTransform3D(ScreenRotation::Rotation0),
-        m_colorSpace(DXGI_COLOR_SPACE_RGB_FULL_G22_NONE_P709),
-        m_options(flags),
-        m_deviceNotify(nullptr)
-{
-}
+    m_screenViewport{},
+    m_backBufferFormat(backBufferFormat),
+    m_depthBufferFormat(depthBufferFormat),
+    m_backBufferCount(backBufferCount),
+    m_d3dMinFeatureLevel(minFeatureLevel),
+    m_window(nullptr),
+    m_d3dFeatureLevel(D3D_FEATURE_LEVEL_9_1),
+    m_rotation(DXGI_MODE_ROTATION_IDENTITY),
+    m_dxgiFactoryFlags(0),
+    m_outputSize{ 0, 0, 1, 1 },
+    m_orientationTransform3D(ScreenRotation::Rotation0),
+    m_colorSpace(DXGI_COLOR_SPACE_RGB_FULL_G22_NONE_P709),
+    m_options(flags),
+    m_deviceNotify(nullptr)
+{}
 
 // Configures the Direct3D device, and stores handles to it and the device context.
 void DeviceResources::CreateDeviceResources()
@@ -179,9 +178,9 @@ void DeviceResources::CreateDeviceResources()
         if (FAILED(hr) || !allowTearing)
         {
             m_options &= ~c_AllowTearing;
-#ifdef _DEBUG
+        #ifdef _DEBUG
             OutputDebugStringA("WARNING: Variable refresh rate displays not supported");
-#endif
+        #endif
         }
     }
 
@@ -232,7 +231,7 @@ void DeviceResources::CreateDeviceResources()
             device.GetAddressOf(),      // Returns the Direct3D device created.
             &m_d3dFeatureLevel,         // Returns feature level of device created.
             context.GetAddressOf()      // Returns the device immediate context.
-            );
+        );
     }
 #if defined(NDEBUG)
     else
@@ -256,7 +255,7 @@ void DeviceResources::CreateDeviceResources()
             device.GetAddressOf(),
             &m_d3dFeatureLevel,
             context.GetAddressOf()
-            );
+        );
 
         if (SUCCEEDED(hr))
         {
@@ -274,10 +273,10 @@ void DeviceResources::CreateDeviceResources()
         ComPtr<ID3D11InfoQueue> d3dInfoQueue;
         if (SUCCEEDED(d3dDebug.As(&d3dInfoQueue)))
         {
-#ifdef _DEBUG
+        #ifdef _DEBUG
             d3dInfoQueue->SetBreakOnSeverity(D3D11_MESSAGE_SEVERITY_CORRUPTION, true);
             d3dInfoQueue->SetBreakOnSeverity(D3D11_MESSAGE_SEVERITY_ERROR, true);
-#endif
+        #endif
             D3D11_MESSAGE_ID hide[] =
             {
                 D3D11_MESSAGE_ID_SETPRIVATEDATA_CHANGINGPARAMS,
@@ -324,17 +323,17 @@ void DeviceResources::CreateWindowSizeDependentResources()
             backBufferHeight,
             backBufferFormat,
             (m_options & c_AllowTearing) ? DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING : 0u
-            );
+        );
 
         if (hr == DXGI_ERROR_DEVICE_REMOVED || hr == DXGI_ERROR_DEVICE_RESET)
         {
-#ifdef _DEBUG
+        #ifdef _DEBUG
             char buff[64] = {};
             sprintf_s(buff, "Device Lost on ResizeBuffers: Reason code 0x%08X\n",
                 static_cast<unsigned int>((hr == DXGI_ERROR_DEVICE_REMOVED) ? m_d3dDevice->GetDeviceRemovedReason() : hr));
             OutputDebugStringA(buff);
-#endif
-            // If the device was removed for any reason, a new device and swap chain will need to be created.
+        #endif
+                    // If the device was removed for any reason, a new device and swap chain will need to be created.
             HandleDeviceLost();
 
             // Everything is set up now. Do not continue execution of this method. HandleDeviceLost will reenter this method
@@ -370,7 +369,7 @@ void DeviceResources::CreateWindowSizeDependentResources()
             &swapChainDesc,
             nullptr,
             swapChain.GetAddressOf()
-            ));
+        ));
 
         ThrowIfFailed(swapChain.As(&m_swapChain));
 
@@ -416,7 +415,7 @@ void DeviceResources::CreateWindowSizeDependentResources()
         m_renderTarget.Get(),
         &renderTargetViewDesc,
         m_d3dRenderTargetView.ReleaseAndGetAddressOf()
-        ));
+    ));
 
     if (m_depthBufferFormat != DXGI_FORMAT_UNKNOWN)
     {
@@ -428,20 +427,20 @@ void DeviceResources::CreateWindowSizeDependentResources()
             1, // This depth stencil view has only one texture.
             1, // Use a single mipmap level.
             D3D11_BIND_DEPTH_STENCIL
-            );
+        );
 
         ThrowIfFailed(m_d3dDevice->CreateTexture2D(
             &depthStencilDesc,
             nullptr,
             m_depthStencil.ReleaseAndGetAddressOf()
-            ));
+        ));
 
         CD3D11_DEPTH_STENCIL_VIEW_DESC depthStencilViewDesc(D3D11_DSV_DIMENSION_TEXTURE2D);
         ThrowIfFailed(m_d3dDevice->CreateDepthStencilView(
             m_depthStencil.Get(),
             &depthStencilViewDesc,
             m_d3dDepthStencilView.ReleaseAndGetAddressOf()
-            ));
+        ));
     }
 
     // Set the 3D rendering viewport to target the entire window.
@@ -450,7 +449,7 @@ void DeviceResources::CreateWindowSizeDependentResources()
         0.0f,
         static_cast<float>(backBufferWidth),
         static_cast<float>(backBufferHeight)
-        );
+    );
 }
 
 // This method is called when the CoreWindow is created (or re-created).
@@ -518,11 +517,11 @@ void DeviceResources::ValidateDevice()
         || previousDesc.AdapterLuid.HighPart != currentDesc.AdapterLuid.HighPart
         || FAILED(m_d3dDevice->GetDeviceRemovedReason()))
     {
-#ifdef _DEBUG
+    #ifdef _DEBUG
         OutputDebugStringA("Device Lost on ValidateDevice\n");
-#endif
+    #endif
 
-        // Create a new device and swap chain.
+            // Create a new device and swap chain.
         HandleDeviceLost();
     }
 }
@@ -606,12 +605,12 @@ void DeviceResources::Present()
     // must recreate all device resources.
     if (hr == DXGI_ERROR_DEVICE_REMOVED || hr == DXGI_ERROR_DEVICE_RESET)
     {
-#ifdef _DEBUG
+    #ifdef _DEBUG
         char buff[64] = {};
         sprintf_s(buff, "Device Lost on Present: Reason code 0x%08X\n",
             static_cast<unsigned int>((hr == DXGI_ERROR_DEVICE_REMOVED) ? m_d3dDevice->GetDeviceRemovedReason() : hr));
         OutputDebugStringA(buff);
-#endif
+    #endif
         HandleDeviceLost();
     }
     else
@@ -642,7 +641,7 @@ void DeviceResources::GetHardwareAdapter(IDXGIAdapter1** ppAdapter)
                 adapterIndex,
                 DXGI_GPU_PREFERENCE_HIGH_PERFORMANCE,
                 IID_PPV_ARGS(adapter.ReleaseAndGetAddressOf())));
-            adapterIndex++)
+                adapterIndex++)
         {
             DXGI_ADAPTER_DESC1 desc;
             ThrowIfFailed(adapter->GetDesc1(&desc));
@@ -669,7 +668,7 @@ void DeviceResources::GetHardwareAdapter(IDXGIAdapter1** ppAdapter)
             SUCCEEDED(m_dxgiFactory->EnumAdapters1(
                 adapterIndex,
                 adapter.ReleaseAndGetAddressOf()));
-            adapterIndex++)
+                adapterIndex++)
         {
             DXGI_ADAPTER_DESC1 desc;
             ThrowIfFailed(adapter->GetDesc1(&desc));
@@ -680,11 +679,11 @@ void DeviceResources::GetHardwareAdapter(IDXGIAdapter1** ppAdapter)
                 continue;
             }
 
-#ifdef _DEBUG
+        #ifdef _DEBUG
             wchar_t buff[256] = {};
             swprintf_s(buff, L"Direct3D Adapter (%u): VID:%04X, PID:%04X - %ls\n", adapterIndex, desc.VendorId, desc.DeviceId, desc.Description);
             OutputDebugStringW(buff);
-#endif
+        #endif
 
             break;
         }

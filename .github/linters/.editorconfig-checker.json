@@ -1,0 +1,13 @@
+{
+    "Format": "github-actions",
+    "exclude": [
+        ".git",
+        "LICENSE",
+        "SimpleSampleWin32DX12/d3dx12.h",
+        "SimpleSampleWindows10DX12/d3dx12.h"
+    ],
+    "Disable": {
+        "Indentation": true,
+        "IndentSize": true
+    }
+}

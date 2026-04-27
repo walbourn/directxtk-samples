@@ -50,8 +50,7 @@ public:
         m_logicalHeight(600.f),
         m_nativeOrientation(DisplayOrientations::None),
         m_currentOrientation(DisplayOrientations::None)
-    {
-    }
+    {}
 
     // IFrameworkView methods
     virtual void Initialize(CoreApplicationView^ applicationView)
@@ -144,12 +143,11 @@ public:
         }
 
         m_game->Initialize(reinterpret_cast<IUnknown*>(window),
-                           outputWidth, outputHeight, rotation );
+            outputWidth, outputHeight, rotation);
     }
 
     virtual void Load(Platform::String^ entryPoint)
-    {
-    }
+    {}
 
     virtual void Run()
     {
@@ -214,11 +212,11 @@ protected:
         auto deferral = args->SuspendingOperation->GetDeferral();
 
         create_task([this, deferral]()
-        {
-            m_game->OnSuspending();
+            {
+                m_game->OnSuspending();
 
-            deferral->Complete();
-        });
+                deferral->Complete();
+            });
     }
 
     void OnResuming(Platform::Object^ sender, Platform::Object^ args)

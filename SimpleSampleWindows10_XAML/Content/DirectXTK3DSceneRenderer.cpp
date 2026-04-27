@@ -1,4 +1,4 @@
-﻿//--------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------
 // File: DirectXTK3DSceneRenderer.cpp
 //
 // This is a simple universal Windows app showing use of DirectXTK
@@ -57,7 +57,7 @@ void DirectXTK3DSceneRenderer::CreateWindowSizeDependentResources()
         aspectRatio,
         0.01f,
         100.0f
-        );
+    );
 
     Matrix orientationMatrix = m_deviceResources->GetOrientationTransform3D();
 
@@ -65,7 +65,7 @@ void DirectXTK3DSceneRenderer::CreateWindowSizeDependentResources()
 
     m_batchEffect->SetProjection(m_projection);
 
-    m_sprites->SetRotation( m_deviceResources->ComputeDisplayRotation() );
+    m_sprites->SetRotation(m_deviceResources->ComputeDisplayRotation());
 }
 
 void DirectXTK3DSceneRenderer::CreateAudioResources()
@@ -237,7 +237,7 @@ void DirectXTK3DSceneRenderer::Render()
 
     const XMVECTORF32 scale = { 0.01f, 0.01f, 0.01f };
     const XMVECTORF32 translate = { 3.f, -2.f, -4.f };
-    const XMVECTOR rotate = Quaternion::CreateFromYawPitchRoll( XM_PI / 2.f, 0.f, -XM_PI / 2.f);
+    const XMVECTOR rotate = Quaternion::CreateFromYawPitchRoll(XM_PI / 2.f, 0.f, -XM_PI / 2.f);
     local = m_world * XMMatrixTransformation(g_XMZero, Quaternion::Identity, scale, g_XMZero, rotate, translate);
     m_model->Draw(context, *m_states, local, m_view, m_projection);
 }
@@ -248,9 +248,9 @@ void DirectXTK3DSceneRenderer::CreateDeviceDependentResources()
     auto device = m_deviceResources->GetD3DDevice();
     m_states = std::make_unique<CommonStates>(device);
 
-    auto fx = new EffectFactory( device );
-    fx->SetDirectory( L"Assets" );
-    m_fxFactory.reset( fx );
+    auto fx = new EffectFactory(device);
+    fx->SetDirectory(L"Assets");
+    m_fxFactory.reset(fx);
 
     auto context = m_deviceResources->GetD3DDeviceContext();
     m_sprites = std::make_unique<SpriteBatch>(context);
@@ -275,11 +275,11 @@ void DirectXTK3DSceneRenderer::CreateDeviceDependentResources()
     // Load textures
     DX::ThrowIfFailed(
         CreateDDSTextureFromFile(device, L"assets\\seafloor.dds", nullptr, m_texture1.ReleaseAndGetAddressOf())
-        );
+    );
 
     DX::ThrowIfFailed(
         CreateDDSTextureFromFile(device, L"assets\\windowslogo.dds", nullptr, m_texture2.ReleaseAndGetAddressOf())
-        );
+    );
 }
 
 void DirectXTK3DSceneRenderer::ReleaseDeviceDependentResources()
